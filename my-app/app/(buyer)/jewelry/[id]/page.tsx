@@ -13,6 +13,8 @@ import {
   RotateCcw,
   ArrowLeft,
   FileCheck2,
+  Banknote,
+  ShieldCheck,
 } from "lucide-react";
 
 export function generateStaticParams() {
@@ -182,14 +184,22 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           {/* Guarantees */}
-          <div className="pt-4 border-t border-[#ede5dc] grid grid-cols-2 gap-3 text-xs text-stone-500">
+          <div className="pt-4 border-t border-[#ede5dc] grid grid-cols-2 gap-3 text-xs text-stone-600">
+            <div className="flex items-center gap-2">
+              <Banknote className="w-4 h-4 text-[#9c7936] shrink-0" />
+              <span>Cash on Delivery (COD)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>100% Hallmark Certified</span>
+            </div>
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-[#9c7936] shrink-0" />
-              <span>Free Insured Shipping</span>
+              <span>Insured TCS / Leopard Courier</span>
             </div>
             <div className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4 text-[#9c7936] shrink-0" />
-              <span>30-Day Easy Returns</span>
+              <span>Doorstep Inspection Allowed</span>
             </div>
           </div>
         </div>

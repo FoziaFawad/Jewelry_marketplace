@@ -106,11 +106,11 @@ export async function getServerSession(): Promise<AuthSessionData | null> {
     if (roleCookie) {
       return {
         id: "demo_user",
-        name: roleCookie === "VENDOR" ? "Elena Rostova" : roleCookie === "ADMIN" ? "Alexander Sterling" : "Genevieve Vance",
-        email: roleCookie === "VENDOR" ? "elena@aurorafine.com" : roleCookie === "ADMIN" ? "admin@eternelle.com" : "buyer@eternelle.com",
+        name: roleCookie === "VENDOR" ? "Tariq Mehmood" : roleCookie === "ADMIN" ? "Hamza Malik" : "Ayla Zahra",
+        email: roleCookie === "VENDOR" ? "tariq@naurattanjewelers.com" : roleCookie === "ADMIN" ? "admin@eternelle.com" : "buyer@eternelle.com",
         role: roleCookie,
         shopId: roleCookie === "VENDOR" ? "shop_aurora_01" : undefined,
-        shopSlug: roleCookie === "VENDOR" ? "aurora-gems" : undefined,
+        shopSlug: roleCookie === "VENDOR" ? "naurattan-jewelers" : undefined,
       };
     }
 

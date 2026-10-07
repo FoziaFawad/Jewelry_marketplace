@@ -138,19 +138,19 @@ export function FilterSidebar() {
       {/* Price Range */}
       <div className="space-y-2.5">
         <label className="text-xs uppercase font-medium tracking-wider text-stone-500">
-          Price Range ($ USD)
+          Price Range (Rs. PKR)
         </label>
         <div className="grid grid-cols-2 gap-2">
           <input
             type="number"
-            placeholder="Min $"
+            placeholder="Min Rs."
             value={currentMinPrice}
             onChange={(e) => updateParam("minPrice", e.target.value)}
             className="bg-[#fbf9f6] border border-[#dcd1c4] rounded-lg px-2.5 py-1.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#b48c48]"
           />
           <input
             type="number"
-            placeholder="Max $"
+            placeholder="Max Rs."
             value={currentMaxPrice}
             onChange={(e) => updateParam("maxPrice", e.target.value)}
             className="bg-[#fbf9f6] border border-[#dcd1c4] rounded-lg px-2.5 py-1.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#b48c48]"

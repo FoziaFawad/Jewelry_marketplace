@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ShieldCheck, Lock, Award, Globe } from "lucide-react";
+import { Sparkles, ShieldCheck, Award, Globe, Banknote } from "lucide-react";
 
 export function Footer() {
   return (
@@ -16,24 +16,24 @@ export function Footer() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Lock className="w-6 h-6 text-[#a37d36] shrink-0" />
+            <Banknote className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Secure Payments</p>
-              <p className="text-[11px] text-stone-500">Safe checkout with Stripe</p>
+              <p className="text-xs font-semibold text-stone-900">Cash on Delivery (COD)</p>
+              <p className="text-[11px] text-stone-500">Pay safely upon doorstep arrival</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Award className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Precious Metals</p>
-              <p className="text-[11px] text-stone-500">14K, 18K Gold & Pure Platinum</p>
+              <p className="text-xs font-semibold text-stone-900">Precious Metals Guarantee</p>
+              <p className="text-[11px] text-stone-500">21K, 22K & 24K Hallmark Gold</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Globe className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Insured Shipping</p>
-              <p className="text-[11px] text-stone-500">Fast delivery with tracking</p>
+              <p className="text-xs font-semibold text-stone-900">Nationwide Express Courier</p>
+              <p className="text-[11px] text-stone-500">TCS / Leopard insured transit</p>
             </div>
           </div>
         </div>
@@ -49,10 +49,10 @@ export function Footer() {
             </span>
           </div>
           <p className="text-xs text-stone-600 max-w-sm leading-relaxed">
-            The multi-vendor marketplace for certified fine jewelry, engagement rings, and independent designers. Shop directly from verified jewelers with confidence.
+            The multi-vendor marketplace for certified bridal jewelry, 21K & 22K solid gold, and bespoke solitaire rings from master jewelry houses in Lahore, Karachi, and Islamabad.
           </p>
           <p className="text-xs text-[#8c672b] font-medium">
-            Protected by Stripe payments & buyer protection guarantee.
+            Cash on delivery & full buyer protection on all orders across Pakistan.
           </p>
         </div>
 
@@ -61,10 +61,10 @@ export function Footer() {
             Shop Jewelry
           </h4>
           <ul className="space-y-2 text-xs">
+            <li><Link href="/jewelry?category=Necklaces" className="hover:text-stone-950">Bridal Sets & Haars</Link></li>
             <li><Link href="/jewelry?category=Rings" className="hover:text-stone-950">Rings & Solitaires</Link></li>
-            <li><Link href="/jewelry?category=Necklaces" className="hover:text-stone-950">Necklaces & Pendants</Link></li>
-            <li><Link href="/jewelry?category=Bracelets" className="hover:text-stone-950">Tennis Bracelets</Link></li>
-            <li><Link href="/jewelry?category=Earrings" className="hover:text-stone-950">Earrings & Studs</Link></li>
+            <li><Link href="/jewelry?category=Bracelets" className="hover:text-stone-950">21K Gold Bangles & Kangan</Link></li>
+            <li><Link href="/jewelry?category=Earrings" className="hover:text-stone-950">Jhumkas & Earrings</Link></li>
           </ul>
         </div>
 
@@ -73,7 +73,7 @@ export function Footer() {
             Sell With Us
           </h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/shops" className="hover:text-stone-950">Browse Shops</Link></li>
+            <li><Link href="/shops" className="hover:text-stone-950">Browse Jewelry Houses</Link></li>
             <li><Link href="/dashboard" className="hover:text-stone-950">Seller Dashboard</Link></li>
             <li><Link href="/dashboard/products/new" className="hover:text-stone-950">Add a New Product</Link></li>
             <li><Link href="/register?role=VENDOR" className="hover:text-stone-950">Open a Jewelry Shop</Link></li>
@@ -85,16 +85,16 @@ export function Footer() {
             Trust & Support
           </h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/admin/vendors" className="hover:text-stone-950">Verified Sellers</Link></li>
-            <li><Link href="/admin/platform-fees" className="hover:text-stone-950">Pricing & Fees</Link></li>
-            <li><span className="text-stone-500">100% Conflict-Free Sourcing</span></li>
-            <li><span className="text-stone-500">GIA / IGI Quality Standards</span></li>
+            <li><Link href="/admin/vendors" className="hover:text-stone-950">Verified Jewelers</Link></li>
+            <li><Link href="/admin/platform-fees" className="hover:text-stone-950">Pricing & Commission</Link></li>
+            <li><span className="text-stone-500">21K, 22K & 24K Hallmark Testing</span></li>
+            <li><span className="text-stone-500">GIA / IGI Certification Standards</span></li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-[#e8ded4] py-6 text-center text-xs text-stone-500">
-        © 2026 Éternelle Gems Jewelry Marketplace. All rights reserved.
+        © 2026 Éternelle Gems Fine Jewelry Marketplace. All rights reserved.
       </div>
     </footer>
   );

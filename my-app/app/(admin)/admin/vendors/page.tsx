@@ -35,7 +35,7 @@ export default function AdminVendorsPage() {
         <div className="p-5 rounded-2xl bg-white border border-[#ede5dc] shadow-xs text-xs">
           <span className="text-[#78716c] block">Pending Approval</span>
           <span className="text-2xl font-serif font-bold text-[#b48c48] mt-1 block">1 Pending</span>
-          <span className="text-[11px] text-[#a8a29e]">Solitaire Guild (UK)</span>
+          <span className="text-[11px] text-[#a8a29e]">Deewan Bridal Atelier (Lahore)</span>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-[#ede5dc] shadow-xs text-xs">
           <span className="text-[#78716c] block">Suspended Shops</span>

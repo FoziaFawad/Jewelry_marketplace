@@ -80,14 +80,17 @@ export function Navbar() {
           <Link href="/jewelry" className="hover:text-[#9c7936] transition-colors">
             All Jewelry
           </Link>
-          <Link href="/shops" className="hover:text-[#9c7936] transition-colors">
-            Jewelry Shops
+          <Link href="/jewelry?category=Necklaces" className="hover:text-[#9c7936] transition-colors">
+            Bridal Sets
+          </Link>
+          <Link href="/jewelry?category=Bracelets" className="hover:text-[#9c7936] transition-colors">
+            Bangles & Kangan
           </Link>
           <Link href="/jewelry?category=Rings" className="hover:text-[#9c7936] transition-colors">
-            Rings
+            Solitaire Rings
           </Link>
-          <Link href="/jewelry?gemstoneType=Diamond" className="hover:text-[#9c7936] transition-colors">
-            Diamonds
+          <Link href="/shops" className="hover:text-[#9c7936] transition-colors">
+            Jewelry Houses
           </Link>
         </nav>
 

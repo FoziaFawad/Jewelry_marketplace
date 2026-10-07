@@ -21,7 +21,7 @@ export default function VendorDashboardPage() {
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-stone-500">
-            Aurora Haute Gems • Connected Stripe ID: <span className="font-mono text-stone-800">acct_aurora_connect_991</span>
+            Naurattan Heritage Jewelers • MM Alam Road, Gulberg III, Lahore
           </p>
         </div>
 

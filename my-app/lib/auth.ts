@@ -13,23 +13,23 @@ export interface SessionUser {
 export const DEMO_USERS: Record<Role, SessionUser> = {
   BUYER: {
     id: "usr_buyer_01",
-    name: "Genevieve Vance",
-    email: "genevieve@luxurydomain.com",
+    name: "Ayla Zahra",
+    email: "buyer@eternelle.com",
     role: "BUYER",
   },
   VENDOR: {
     id: "usr_vendor_01",
-    name: "Elena Rostova",
-    email: "elena@auroragems.com",
+    name: "Tariq Mehmood",
+    email: "tariq@naurattanjewelers.com",
     role: "VENDOR",
     shopId: "shop_aurora_01",
-    shopSlug: "aurora-gems",
-    shopName: "Aurora Haute Gems",
+    shopSlug: "naurattan-jewelers",
+    shopName: "Naurattan Heritage Jewelers",
   },
   ADMIN: {
     id: "usr_admin_01",
-    name: "Alexander Sterling",
-    email: "admin@gemvault-market.com",
+    name: "Hamza Malik",
+    email: "admin@eternelle.com",
     role: "ADMIN",
   },
 };

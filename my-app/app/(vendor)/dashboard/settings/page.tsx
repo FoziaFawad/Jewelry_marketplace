@@ -7,11 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Wallet, Store, ShieldCheck, CheckCircle2, ExternalLink } from "lucide-react";
 
 export default function VendorSettingsPage() {
-  const [shopName, setShopName] = useState("Aurora Haute Gems");
+  const [shopName, setShopName] = useState("Naurattan Heritage Jewelers");
   const [description, setDescription] = useState(
-    "Specializing in conflict-free high-carat diamonds, bespoke bridal settings, and rare royal sapphires crafted in Geneva."
+    "Specializing in 22K gold bridal jewellery, certified diamond solitaires, and royal handcrafted polki sets in Lahore."
   );
-  const [location, setLocation] = useState("Geneva, Switzerland & New York, USA");
+  const [location, setLocation] = useState("MM Alam Road, Gulberg III, Lahore, Pakistan");
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -62,7 +62,7 @@ export default function VendorSettingsPage() {
           <div className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#ede5dc]">
             <span className="text-[#78716c] block">Destination Bank Account</span>
             <span className="text-stone-900 font-semibold text-xs mt-0.5 block">
-              UBS Switzerland •••• 4492 (EUR/USD)
+              Habib Bank Limited (HBL) •••• 4492 (PKR)
             </span>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function VendorSettingsPage() {
           />
           <Input
             label="Year Established"
-            defaultValue="2014"
+            defaultValue="1982"
           />
         </div>
 

@@ -31,13 +31,13 @@ export default function CartPage() {
               <div className="flex items-center gap-2">
                 <Store className="w-4 h-4 text-[#9c7936]" />
                 <span className="text-sm font-serif font-semibold text-stone-900">
-                  Aurora Haute Gems
+                  {cartItems[0].product.shop?.name || "Naurattan Heritage Jewelers"}
                 </span>
                 <span className="text-[10px] text-[#826229] px-2.5 py-0.5 rounded-full bg-[#faf5ed] border border-[#ecd8b0]">
-                  Verified Shop
+                  Verified Jeweler
                 </span>
               </div>
-              <span className="text-xs text-stone-500">Tracked Shipping</span>
+              <span className="text-xs text-stone-500">Insured Delivery</span>
             </div>
 
             <div className="flex items-center gap-4">
@@ -73,13 +73,13 @@ export default function CartPage() {
               <div className="flex items-center gap-2">
                 <Store className="w-4 h-4 text-[#9c7936]" />
                 <span className="text-sm font-serif font-semibold text-stone-900">
-                  Valerio Milano
+                  {cartItems[1].product.shop?.name || "Zaveri Fine Diamonds"}
                 </span>
                 <span className="text-[10px] text-[#826229] px-2.5 py-0.5 rounded-full bg-[#faf5ed] border border-[#ecd8b0]">
-                  Verified Shop
+                  Verified Jeweler
                 </span>
               </div>
-              <span className="text-xs text-stone-500">Tracked Shipping</span>
+              <span className="text-xs text-stone-500">Insured Delivery</span>
             </div>
 
             <div className="flex items-center gap-4">
@@ -126,6 +126,10 @@ export default function CartPage() {
             <div className="flex justify-between">
               <span>Buyer Protection</span>
               <span className="text-emerald-700 font-medium">Included</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Payment Option</span>
+              <span className="text-[#826229] font-medium">Cash on Delivery (COD)</span>
             </div>
           </div>
 

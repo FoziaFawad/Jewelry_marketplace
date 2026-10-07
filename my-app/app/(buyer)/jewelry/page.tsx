@@ -102,7 +102,7 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
             Fine Jewelry & Gemstones
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-2">
-            Explore rings, necklaces, bracelets, and earrings from verified independent jewelers.
+            Explore 21K & 22K gold bridal sets, certified solitaire rings, handcrafted bangles, and jhumkas from verified jewelry houses.
           </p>
         </div>
 

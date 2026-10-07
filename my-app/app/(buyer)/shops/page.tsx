@@ -15,10 +15,10 @@ export default function ShopsDirectoryPage() {
             Verified Jewelry Sellers
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif font-normal text-stone-900">
-            Featured Jewelry Shops
+            Featured Jewelry Houses
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-2xl leading-relaxed">
-            Browse trusted jewelry designers and independent boutiques. Each seller is verified for quality and authentic materials.
+            Browse renowned jewelry houses and master goldsmith ateliers across Lahore, Karachi, and Islamabad. Each seller is verified for hallmark purity and certified gemstones.
           </p>
         </div>
 

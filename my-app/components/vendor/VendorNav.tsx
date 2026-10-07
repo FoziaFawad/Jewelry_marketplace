@@ -31,7 +31,7 @@ export function VendorNav() {
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2">
             <span className="text-sm font-serif font-semibold tracking-wide text-stone-900">
-              AURORA HAUTE GEMS
+              NAURATTAN HERITAGE JEWELERS
             </span>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#faf5ed] text-[#826229] border border-[#ecd8b0] font-medium">
               Seller Account
