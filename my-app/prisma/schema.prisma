@@ -1,0 +1,122 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  BUYER
+  VENDOR
+  ADMIN
+}
+
+enum ShopStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String?
+  role          Role      @default(BUYER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  shop          Shop?     // 1-to-1 if user is a vendor
+  orders        Order[]   @relation("BuyerOrders")
+}
+
+model Shop {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  description     String?
+  logoUrl         String?
+  bannerUrl       String?
+  status          ShopStatus  @default(PENDING_VERIFICATION)
+  stripeAccountId String?     // For Stripe Connect automated payouts
+  
+  ownerId         String      @unique
+  owner           User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  products        Product[]
+  subOrders       SubOrder[]  // Shop-specific part of a customer order
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Product {
+  id             String      @id @default(cuid())
+  title          String
+  slug           String
+  description    String
+  price          Decimal     @db.Decimal(10, 2)
+  stock          Int         @default(1)
+  images         String[]
+  
+  // Jewelry-specific attributes
+  category       String      // Rings, Necklaces, Bracelets, Earrings
+  metalType      String      // Gold, Platinum, Silver, Rose Gold
+  metalPurity    String?     // 14K, 18K, 24K, 925 Sterling
+  gemstoneType   String?     // Diamond, Emerald, Sapphire, None
+  caratWeight    Float?
+  certifiedBy    String?     // GIA, IGI, AGS
+  
+  shopId         String
+  shop           Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  
+  orderItems     OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([shopId])
+  @@index([category, metalType])
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  buyerId        String
+  buyer          User         @relation("BuyerOrders", fields: [buyerId], references: [id])
+  totalAmount    Decimal      @db.Decimal(10, 2)
+  status         OrderStatus  @default(PENDING)
+  subOrders      SubOrder[]   // Allows splitting orders across different shops
+  createdAt      DateTime     @default(now())
+}
+
+model SubOrder {
+  id             String       @id @default(cuid())
+  orderId        String
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  shopId         String
+  shop           Shop         @relation(fields: [shopId], references: [id])
+  payoutAmount   Decimal      @db.Decimal(10, 2)
+  platformFee    Decimal      @db.Decimal(10, 2)
+  status         OrderStatus  @default(PENDING)
+  trackingNumber String?
+  items          OrderItem[]
+}
+
+model OrderItem {
+  id             String    @id @default(cuid())
+  subOrderId     String
+  subOrder       SubOrder  @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id])
+  quantity       Int       @default(1)
+  priceAtSale    Decimal   @db.Decimal(10, 2)
+}

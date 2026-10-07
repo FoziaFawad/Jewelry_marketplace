@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f5;
+  --foreground: #1c1917;
+  --gold-primary: #b48c48;
+  --gold-light: #d8be89;
+  --gold-dark: #826229;
+  --sand-bg: #f5f0ea;
+  --card-bg: #ffffff;
+  --card-border: #ede5dc;
 }
 
 @theme inline {
@@ -12,15 +18,97 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 15% 10%, rgba(244, 238, 230, 0.8) 0px, transparent 60%),
+    radial-gradient(at 85% 90%, rgba(238, 228, 216, 0.6) 0px, transparent 60%),
+    radial-gradient(at 50% 40%, rgba(255, 255, 255, 0.9) 0px, transparent 100%);
+  background-attachment: fixed;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Elegant Light Luxury Utilities */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #876527 0%, #b48c48 50%, #684d1c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.silver-gradient-text {
+  background: linear-gradient(135deg, #475569 0%, #1e293b 50%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.luxury-glass {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #ede5dc;
+  box-shadow: 0 4px 20px -2px rgba(28, 25, 23, 0.04);
+}
+
+.luxury-glass-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-glass-hover:hover {
+  background: #ffffff;
+  border-color: #c9b18c;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(180, 140, 72, 0.12), 0 4px 10px -2px rgba(28, 25, 23, 0.04);
+}
+
+.gold-btn {
+  background: #1c1917;
+  color: #ffffff;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(28, 25, 23, 0.08);
+}
+
+.gold-btn:hover {
+  background: #b48c48;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(180, 140, 72, 0.25);
+  transform: translateY(-1px);
+}
+
+.gold-outline-btn {
+  border: 1px solid #dcd1c4;
+  color: #1c1917;
+  background: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.gold-outline-btn:hover {
+  border-color: #b48c48;
+  background: #faf5ed;
+  color: #876527;
+}
+
+.sand-badge {
+  background: #f5f0ea;
+  border: 1px solid #e7ded4;
+  color: #574d43;
+}
+
+/* Custom Fine Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #faf8f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #ded5cb;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b48c48;
 }
