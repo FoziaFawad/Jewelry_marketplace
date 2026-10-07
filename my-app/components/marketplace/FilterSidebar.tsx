@@ -41,14 +41,14 @@ export function FilterSidebar() {
       <div className="flex items-center justify-between pb-4 border-b border-[#ede5dc]">
         <div className="flex items-center gap-2 text-stone-900 font-serif font-semibold text-sm">
           <SlidersHorizontal className="w-4 h-4 text-[#9c7936]" />
-          <span>Refine Catalog</span>
+          <span>Filters</span>
         </div>
         <button
           onClick={handleReset}
-          className="text-xs text-stone-400 hover:text-[#9c7936] flex items-center gap-1 transition-colors"
+          className="text-xs text-stone-400 hover:text-[#9c7936] flex items-center gap-1 transition-colors cursor-pointer"
         >
           <RotateCcw className="w-3 h-3" />
-          Reset
+          Clear All
         </button>
       </div>
 
@@ -62,10 +62,10 @@ export function FilterSidebar() {
           onChange={(e) => updateParam("sortBy", e.target.value)}
           className="w-full bg-[#fbf9f6] border border-[#dcd1c4] rounded-lg px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-[#b48c48]"
         >
-          <option value="newest">Featured & Curated</option>
+          <option value="newest">Featured Items</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
-          <option value="carat-desc">Highest Carat Weight</option>
+          <option value="carat-desc">Carat Weight</option>
         </select>
       </div>
 
@@ -193,7 +193,7 @@ export function FilterSidebar() {
             }
             className="rounded border-[#dcd1c4] text-[#b48c48] focus:ring-0 focus:ring-offset-0 h-4 w-4"
           />
-          <span>GIA / IGI Certified Only</span>
+          <span>Certified Gemstones Only</span>
         </label>
       </div>
     </aside>

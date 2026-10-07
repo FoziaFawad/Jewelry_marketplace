@@ -10,15 +10,15 @@ export default function ShopsDirectoryPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#ede5dc]">
         <div>
-          <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-widest mb-1.5">
+          <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-wider mb-1.5">
             <Store className="w-4 h-4" />
-            Eternelle Gems Ateliers Directory
+            Verified Jewelry Sellers
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif font-normal text-stone-900">
-            Independent Fine Jewelry Ateliers
+            Featured Jewelry Shops
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-2xl leading-relaxed">
-            Each atelier is vetted for ethical sourcing, authentic hallmarks (18K, 24K, 950 Platinum), and independent laboratory certifications (GIA, IGI).
+            Browse trusted jewelry designers and independent boutiques. Each seller is verified for quality and authentic materials.
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export default function ShopsDirectoryPage() {
           className="gold-btn px-5 py-2.5 rounded-full text-xs font-medium flex items-center gap-2 self-start md:self-auto shrink-0 shadow-xs"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Open an Atelier Boutique</span>
+          <span>Open a Jewelry Shop</span>
         </Link>
       </div>
 

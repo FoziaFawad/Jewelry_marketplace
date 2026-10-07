@@ -98,13 +98,13 @@ export function OrderTable({ orders = DEFAULT_ORDERS }: OrderTableProps) {
       <table className="w-full text-left text-xs text-stone-700">
         <thead className="bg-[#faf8f5] uppercase tracking-wider text-[11px] text-stone-500 border-b border-[#ede5dc]">
           <tr>
-            <th className="py-4 px-5">SubOrder / Date</th>
-            <th className="py-4 px-5">Client</th>
-            <th className="py-4 px-5">Jewelry Item</th>
-            <th className="py-4 px-5">Gross Sale</th>
-            <th className="py-4 px-5">Fee (10%)</th>
-            <th className="py-4 px-5">Net Payout</th>
-            <th className="py-4 px-5">Status & Dispatch</th>
+            <th className="py-4 px-5">Order ID & Date</th>
+            <th className="py-4 px-5">Customer</th>
+            <th className="py-4 px-5">Product</th>
+            <th className="py-4 px-5">Total Sale</th>
+            <th className="py-4 px-5">Marketplace Fee</th>
+            <th className="py-4 px-5">Your Payout</th>
+            <th className="py-4 px-5">Status & Tracking</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[#ede5dc] font-medium">

@@ -18,29 +18,29 @@ export default function AdminVendorsPage() {
     <div className="space-y-8">
       <div className="pb-6 border-b border-[#ede5dc]">
         <h1 className="text-2xl font-serif font-bold text-stone-900">
-          Atelier KYC & Marketplace Governance
+          Seller Approvals & Shop Management
         </h1>
         <p className="text-xs text-[#78716c] mt-1">
-          Review business registration licenses, ethical diamond Kimberley compliance, and approve Stripe Connect accounts.
+          Review new seller registrations, approve shops, and manage seller status across the marketplace.
         </p>
       </div>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-[#ede5dc] shadow-xs text-xs">
-          <span className="text-[#78716c] block">Verified Ateliers</span>
+          <span className="text-[#78716c] block">Active Sellers</span>
           <span className="text-2xl font-serif font-bold text-emerald-700 mt-1 block">3 Active</span>
-          <span className="text-[11px] text-[#a8a29e]">Live on Eternelle Gems boutique</span>
+          <span className="text-[11px] text-[#a8a29e]">Currently selling on marketplace</span>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-[#ede5dc] shadow-xs text-xs">
-          <span className="text-[#78716c] block">Pending KYC Review</span>
+          <span className="text-[#78716c] block">Pending Approval</span>
           <span className="text-2xl font-serif font-bold text-[#b48c48] mt-1 block">1 Pending</span>
           <span className="text-[11px] text-[#a8a29e]">Solitaire Guild (UK)</span>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-[#ede5dc] shadow-xs text-xs">
-          <span className="text-[#78716c] block">Suspended Stores</span>
+          <span className="text-[#78716c] block">Suspended Shops</span>
           <span className="text-2xl font-serif font-bold text-stone-400 mt-1 block">0 Suspended</span>
-          <span className="text-[11px] text-[#a8a29e]">Zero infractions</span>
+          <span className="text-[11px] text-[#a8a29e]">No issues</span>
         </div>
       </div>
 
@@ -49,12 +49,12 @@ export default function AdminVendorsPage() {
         <table className="w-full text-left text-xs text-stone-700">
           <thead className="bg-[#faf8f5] uppercase tracking-wider text-[11px] text-stone-500 border-b border-[#ede5dc]">
             <tr>
-              <th className="py-3.5 px-4">Boutique Atelier</th>
-              <th className="py-3.5 px-4">Location / Founded</th>
-              <th className="py-3.5 px-4">KYC Documents</th>
-              <th className="py-3.5 px-4">Stripe Connect ID</th>
+              <th className="py-3.5 px-4">Shop Name</th>
+              <th className="py-3.5 px-4">Location & Founded</th>
+              <th className="py-3.5 px-4">Business License</th>
+              <th className="py-3.5 px-4">Stripe Account ID</th>
               <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4 text-right">Governance Actions</th>
+              <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#ede5dc] font-medium">

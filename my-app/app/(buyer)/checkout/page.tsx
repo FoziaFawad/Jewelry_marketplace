@@ -12,7 +12,7 @@ import {
   Store,
   CheckCircle2,
   Lock,
-  Split,
+  ShoppingBag,
 } from "lucide-react";
 
 export default function CheckoutPage() {
@@ -23,14 +23,14 @@ export default function CheckoutPage() {
   const subOrders = [
     {
       shopName: "Aurora Haute Gems",
-      shopLocation: "Geneva Atelier",
+      shopLocation: "Geneva, Switzerland",
       itemTitle: "The Empress 3.2ct Oval Solitaire Diamond Ring",
       amount: 18450,
       stripeConnectedAccount: "acct_aurora_connect_991",
     },
     {
       shopName: "Valerio Milano",
-      shopLocation: "Milan Atelier",
+      shopLocation: "Milan, Italy",
       itemTitle: "Verona Royal Emerald & Diamond Choker",
       amount: 24800,
       stripeConnectedAccount: "acct_valerio_connect_772",
@@ -49,35 +49,35 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between pb-6 border-b border-[#ede5dc]">
+      <div className="flex items-center justify-between pb-5 border-b border-[#ede5dc]">
         <div>
-          <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-widest mb-1">
+          <div className="flex items-center gap-1.5 text-[#9c7936] text-xs font-semibold uppercase tracking-wider mb-1">
             <Lock className="w-3.5 h-3.5" />
-            256-Bit Escrow Encrypted
+            Secure Encrypted Checkout
           </div>
           <h1 className="text-3xl font-serif font-normal text-stone-900">
-            Multi-Shop Split Checkout
+            Complete Your Order
           </h1>
         </div>
         <Badge variant="gold" className="text-xs">
-          Powered by Stripe Connect
+          Secured by Stripe
         </Badge>
       </div>
 
       {completed ? (
-        <div className="p-10 rounded-3xl bg-white border border-emerald-200 text-center max-w-2xl mx-auto space-y-6 shadow-md">
+        <div className="p-8 sm:p-12 rounded-3xl bg-white border border-emerald-200 text-center max-w-2xl mx-auto space-y-6 shadow-md">
           <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200">
             <CheckCircle2 className="w-10 h-10" />
           </div>
 
           <div className="space-y-2">
             <h2 className="text-2xl font-serif font-normal text-stone-900">
-              Order Confirmed & Escrow Activated!
+              Thank You! Your Order is Confirmed
             </h2>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Umbrella Order <strong className="text-[#826229] font-mono">ORD-89218-VAULT</strong> has been created. Funds are safely locked in escrow and partitioned into 2 boutique SubOrders.
+            <p className="text-xs text-stone-600 leading-relaxed max-w-md mx-auto">
+              Your order <strong className="text-stone-900 font-mono">#ORD-89218</strong> has been placed. Both independent jewelers have received your order details and are preparing your shipment with insured tracking.
             </p>
           </div>
 
@@ -90,14 +90,14 @@ export default function CheckoutPage() {
                   <div className="flex items-center justify-between">
                     <span className="font-serif font-semibold text-stone-900 flex items-center gap-1.5">
                       <Store className="w-3.5 h-3.5 text-[#9c7936]" />
-                      SubOrder #{idx + 1}: {s.shopName}
+                      Package {idx + 1}: {s.shopName}
                     </span>
                     <Badge variant="success" className="text-[10px]">Processing</Badge>
                   </div>
                   <p className="text-stone-600">{s.itemTitle}</p>
                   <div className="flex justify-between text-[11px] pt-1 text-stone-500 border-t border-[#ede5dc]">
-                    <span>Atelier Net Transfer: <strong className="text-emerald-700">{formatCurrency(vendorPayout)}</strong></span>
-                    <span>Platform Fee (10%): <strong className="text-[#826229]">{formatCurrency(platformFee)}</strong></span>
+                    <span>Seller Payout: <strong className="text-emerald-700">{formatCurrency(vendorPayout)}</strong></span>
+                    <span>Marketplace Fee (10%): <strong className="text-[#826229]">{formatCurrency(platformFee)}</strong></span>
                   </div>
                 </div>
               );
@@ -106,26 +106,26 @@ export default function CheckoutPage() {
 
           <div className="pt-2 flex justify-center gap-4">
             <Link href="/dashboard" className="gold-btn px-6 py-2.5 rounded-full text-xs font-medium">
-              View in Vendor Portal
+              View in Seller Dashboard
             </Link>
             <Link href="/jewelry" className="gold-outline-btn px-6 py-2.5 rounded-full text-xs font-medium">
-              Continue Browsing
+              Continue Shopping
             </Link>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Shipping and Card Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          {/* Checkout Form */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#ede5dc] shadow-sm space-y-5">
+            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#ede5dc] shadow-sm space-y-4">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-stone-700">
-                1. Insured Delivery Destination
+                1. Shipping Address
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 <Input label="First Name" defaultValue="Genevieve" />
                 <Input label="Last Name" defaultValue="Vance" />
               </div>
-              <Input label="Delivery Address" defaultValue="740 Park Avenue, Penthouse B" />
+              <Input label="Delivery Address" defaultValue="740 Park Avenue, Apt 4B" />
               <div className="grid grid-cols-3 gap-3">
                 <Input label="City" defaultValue="New York" />
                 <Input label="State" defaultValue="NY" />
@@ -133,9 +133,9 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#ede5dc] shadow-sm space-y-5">
+            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#ede5dc] shadow-sm space-y-4">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-stone-700">
-                2. Payment Details (Stripe Connect Split)
+                2. Payment Details
               </h2>
               <Input
                 label="Card Number"
@@ -143,37 +143,32 @@ export default function CheckoutPage() {
                 defaultValue="•••• •••• •••• 4242"
               />
               <div className="grid grid-cols-2 gap-4">
-                <Input label="Expiration" defaultValue="12/28" />
+                <Input label="Expiration Date" defaultValue="12/28" />
                 <Input label="CVC" defaultValue="882" />
               </div>
             </div>
           </div>
 
-          {/* Multi-Vendor Order Decomposition Sidebar */}
+          {/* Order Summary Sidebar */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#ede5dc] shadow-sm space-y-5">
+            <div className="p-6 sm:p-8 rounded-2xl bg-white border border-[#ede5dc] shadow-sm space-y-5">
               <div className="flex items-center gap-2 text-stone-900 font-serif font-semibold text-sm">
-                <Split className="w-4 h-4 text-[#9c7936]" />
-                <span>Multi-Shop Order Breakdown</span>
+                <ShoppingBag className="w-4 h-4 text-[#9c7936]" />
+                <span>Order Summary by Seller</span>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {subOrders.map((s, idx) => {
-                  const { platformFee, vendorPayout } = calculateMarketplaceSplit(s.amount);
                   return (
                     <div
                       key={idx}
-                      className="p-4 rounded-2xl bg-[#faf8f5] border border-[#ede5dc] space-y-2 text-xs"
+                      className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#ede5dc] space-y-1.5 text-xs"
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-serif font-medium text-stone-900">{s.shopName}</span>
                         <span className="font-semibold text-stone-900">{formatCurrency(s.amount)}</span>
                       </div>
                       <p className="text-[11px] text-stone-500 truncate">{s.itemTitle}</p>
-                      <div className="pt-2 border-t border-[#ede5dc] flex justify-between text-[10px] text-stone-500">
-                        <span>Vendor Net Payout: <strong className="text-emerald-700">{formatCurrency(vendorPayout)}</strong></span>
-                        <span>Platform Commission (10%): <strong className="text-[#826229]">{formatCurrency(platformFee)}</strong></span>
-                      </div>
                     </div>
                   );
                 })}
@@ -181,15 +176,15 @@ export default function CheckoutPage() {
 
               <div className="pt-4 border-t border-[#ede5dc] space-y-2 text-xs">
                 <div className="flex justify-between text-stone-600">
-                  <span>Combined Items:</span>
+                  <span>Subtotal (2 items):</span>
                   <span className="text-stone-900 font-medium">{formatCurrency(totalAmount)}</span>
                 </div>
                 <div className="flex justify-between text-stone-600">
-                  <span>Armored Transport:</span>
+                  <span>Insured Shipping:</span>
                   <span className="text-emerald-700 font-medium">Free</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-stone-900 pt-2 border-t border-[#ede5dc]">
-                  <span>Total Amount:</span>
+                  <span>Total:</span>
                   <span className="gold-gradient-text text-xl">{formatCurrency(totalAmount)}</span>
                 </div>
               </div>
@@ -198,16 +193,16 @@ export default function CheckoutPage() {
                 type="button"
                 variant="gold"
                 size="lg"
-                className="w-full text-xs font-medium rounded-full py-3"
+                className="w-full text-xs font-medium rounded-full py-3 cursor-pointer"
                 disabled={submitting}
                 onClick={handleSubmit}
               >
-                {submitting ? "Distributing via Stripe Connect..." : "Authorize Escrow & Place Order"}
+                {submitting ? "Processing Payment..." : "Place Order"}
               </Button>
 
-              <div className="flex items-center gap-2 text-[10px] text-stone-500 justify-center">
+              <div className="flex items-center gap-2 text-[11px] text-stone-500 justify-center">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#9c7936]" />
-                <span>Protected by Stripe Connect Transfer API & Escrow Guarantee</span>
+                <span>Protected by Stripe encrypted payments & buyer guarantee</span>
               </div>
             </div>
           </div>

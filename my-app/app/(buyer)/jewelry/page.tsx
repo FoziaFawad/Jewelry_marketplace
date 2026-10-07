@@ -94,20 +94,20 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#ede5dc]">
         <div>
-          <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-widest mb-1">
+          <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-wider mb-1">
             <Gem className="w-4 h-4" />
-            Eternelle Gems Catalog
+            Jewelry Collection
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif font-normal text-stone-900">
-            Fine Jewelry & Certified Gemstones
+            Fine Jewelry & Gemstones
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-2">
-            Filtered across precious metals, GIA/IGI laboratory certifications, and independent ateliers.
+            Explore rings, necklaces, bracelets, and earrings from verified independent jewelers.
           </p>
         </div>
 
         <div className="w-full md:w-80">
-          <SearchBar initialQuery={filters.query || ""} placeholder="Search jewels..." />
+          <SearchBar initialQuery={filters.query || ""} placeholder="Search by gemstone, metal, or style..." />
         </div>
       </div>
 
@@ -122,7 +122,7 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
         <div className="flex-1 w-full space-y-4">
           <div className="flex items-center justify-between text-xs text-stone-500 px-1">
             <span>
-              Showing <strong className="text-stone-900">{products.length}</strong> authenticated jewelry creations
+              Showing <strong className="text-stone-900">{products.length}</strong> jewelry pieces
             </span>
           </div>
 
@@ -135,9 +135,9 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
           ) : (
             <div className="text-center py-20 rounded-3xl bg-white border border-[#ede5dc] p-8 space-y-3 shadow-2xs">
               <Sparkles className="w-8 h-8 text-[#b48c48] mx-auto" />
-              <h3 className="text-base font-serif font-medium text-stone-900">No jewels match current filters</h3>
+              <h3 className="text-base font-serif font-medium text-stone-900">No products match your filters</h3>
               <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Try widening your price range or clearing metal or carat constraints to discover available creations.
+                Try clearing some filters or searching for another keyword.
               </p>
             </div>
           )}

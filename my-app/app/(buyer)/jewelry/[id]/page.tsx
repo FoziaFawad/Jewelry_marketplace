@@ -131,12 +131,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Description */}
           <div className="space-y-2 text-xs sm:text-sm text-stone-600 leading-relaxed pt-2 border-t border-[#ede5dc]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-              Atelier Master Notes
+              Product Description
             </h3>
             <p>{product.description}</p>
           </div>
 
-          {/* Gemological Specs Box */}
+          {/* Specs Box */}
           <div className="p-5 rounded-2xl bg-[#faf8f5] border border-[#ede5dc] grid grid-cols-2 gap-4 text-xs">
             <div>
               <span className="text-stone-500 block">Precious Metal</span>
@@ -145,7 +145,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </span>
             </div>
             <div>
-              <span className="text-stone-500 block">Center Gemstone</span>
+              <span className="text-stone-500 block">Gemstone</span>
               <span className="font-semibold text-stone-900">
                 {product.gemstoneType || "None"}
               </span>
@@ -157,9 +157,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </span>
             </div>
             <div>
-              <span className="text-stone-500 block">Lab Certificate</span>
+              <span className="text-stone-500 block">Certification</span>
               <span className="font-semibold text-emerald-800">
-                {product.certificateNumber ? `${product.certifiedBy} #${product.certificateNumber}` : "Certified by Atelier"}
+                {product.certificateNumber ? `${product.certifiedBy} #${product.certificateNumber}` : "Certified Authentic"}
               </span>
             </div>
           </div>
@@ -168,16 +168,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Link
               href={`/checkout?productId=${product.id}`}
-              className="flex-1 py-3 px-6 rounded-full gold-btn text-center text-xs font-medium flex items-center justify-center gap-2 shadow-md"
+              className="flex-1 py-3 px-6 rounded-full gold-btn text-center text-xs font-medium flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
-              Direct Atelier Checkout
+              Buy Now
             </Link>
             <Link
               href="/cart"
-              className="py-3 px-6 rounded-full gold-outline-btn text-center text-xs font-medium flex items-center justify-center gap-2 shadow-2xs"
+              className="py-3 px-6 rounded-full gold-outline-btn text-center text-xs font-medium flex items-center justify-center gap-2 shadow-2xs cursor-pointer"
             >
-              Add to Multi-Shop Bag
+              Add to Cart
             </Link>
           </div>
 
@@ -185,11 +185,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="pt-4 border-t border-[#ede5dc] grid grid-cols-2 gap-3 text-xs text-stone-500">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-[#9c7936] shrink-0" />
-              <span>Insured Armored Transit</span>
+              <span>Free Insured Shipping</span>
             </div>
             <div className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4 text-[#9c7936] shrink-0" />
-              <span>30-Day Escrow Returns</span>
+              <span>30-Day Easy Returns</span>
             </div>
           </div>
         </div>

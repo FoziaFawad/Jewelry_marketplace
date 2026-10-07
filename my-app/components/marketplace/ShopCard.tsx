@@ -38,11 +38,11 @@ export function ShopCard({ shop }: ShopCardProps) {
 
             {isVerified ? (
               <Badge variant="gold" className="text-[10px]">
-                <ShieldCheck className="w-3 h-3 text-[#9c7936]" /> Verified Atelier
+                <ShieldCheck className="w-3 h-3 text-[#9c7936]" /> Verified Seller
               </Badge>
             ) : (
               <Badge variant="outline" className="text-[10px]">
-                Pending Verification
+                Under Review
               </Badge>
             )}
           </div>
@@ -85,7 +85,7 @@ export function ShopCard({ shop }: ShopCardProps) {
             href={`/shops/${shop.slug}`}
             className="inline-flex items-center gap-1 text-xs font-medium text-[#826229] hover:text-[#5c441b] transition-colors"
           >
-            Visit Atelier
+            Visit Shop
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>

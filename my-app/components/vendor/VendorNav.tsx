@@ -18,11 +18,11 @@ export function VendorNav() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/products", label: "Inventory", icon: Gem },
-    { href: "/dashboard/products/new", label: "List Creation", icon: PlusCircle },
-    { href: "/dashboard/orders", label: "Fulfill Orders", icon: PackageCheck },
-    { href: "/dashboard/settings", label: "Store & Payouts", icon: Settings },
+    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard/products", label: "My Products", icon: Gem },
+    { href: "/dashboard/products/new", label: "Add Product", icon: PlusCircle },
+    { href: "/dashboard/orders", label: "Orders", icon: PackageCheck },
+    { href: "/dashboard/settings", label: "Shop Settings", icon: Settings },
   ];
 
   return (
@@ -34,7 +34,7 @@ export function VendorNav() {
               AURORA HAUTE GEMS
             </span>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#faf5ed] text-[#826229] border border-[#ecd8b0] font-medium">
-              Atelier Portal
+              Seller Account
             </span>
           </Link>
 
@@ -72,14 +72,14 @@ export function VendorNav() {
             className="text-xs text-[#826229] hover:text-[#5c441b] flex items-center gap-1 font-medium"
           >
             <Store className="w-3.5 h-3.5 text-[#9c7936]" />
-            <span>Public Atelier</span>
+            <span>View Public Shop</span>
             <ArrowUpRight className="w-3 h-3" />
           </Link>
           <Link
             href="/"
             className="text-xs text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-full bg-[#faf6f0] border border-[#e8ded4] shadow-2xs"
           >
-            Back to Mall
+            Storefront
           </Link>
         </div>
       </div>

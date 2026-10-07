@@ -11,29 +11,29 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <ShieldCheck className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">GIA & IGI Verified</p>
-              <p className="text-[11px] text-stone-500">100% Certified Gemstones</p>
+              <p className="text-xs font-semibold text-stone-900">Certified Diamonds & Gems</p>
+              <p className="text-[11px] text-stone-500">100% Genuine Gemstones</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Lock className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Escrow & Split Payouts</p>
-              <p className="text-[11px] text-stone-500">Secured with Stripe Connect</p>
+              <p className="text-xs font-semibold text-stone-900">Secure Payments</p>
+              <p className="text-[11px] text-stone-500">Safe checkout with Stripe</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Award className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Artisan Hallmarks</p>
-              <p className="text-[11px] text-stone-500">18K, 24K & 950 Platinum</p>
+              <p className="text-xs font-semibold text-stone-900">Precious Metals</p>
+              <p className="text-[11px] text-stone-500">14K, 18K Gold & Pure Platinum</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Globe className="w-6 h-6 text-[#a37d36] shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-stone-900">Insured Global Courier</p>
-              <p className="text-[11px] text-stone-500">Armored delivery & tracking</p>
+              <p className="text-xs font-semibold text-stone-900">Insured Shipping</p>
+              <p className="text-[11px] text-stone-500">Fast delivery with tracking</p>
             </div>
           </div>
         </div>
@@ -41,60 +41,60 @@ export function Footer() {
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-5 gap-8">
-        <div className="md:col-span-2 space-y-4">
-          <div className="flex items-center gap-2.5">
+        <div className="md:col-span-2 space-y-3.5">
+          <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#a37d36]" />
-            <span className="text-base font-serif font-semibold text-stone-900 tracking-[0.2em] uppercase">
-              ETERNELLE GEMS
+            <span className="text-base font-serif font-semibold text-stone-900 tracking-wider uppercase">
+              Éternelle Gems
             </span>
           </div>
           <p className="text-xs text-stone-600 max-w-sm leading-relaxed">
-            The premier multi-vendor destination for fine jewelry, certified diamonds, and independent master goldsmiths across Geneva, Milan, Antwerp, and New York. Faithful to the principles of fine craftsmanship.
+            The multi-vendor marketplace for certified fine jewelry, engagement rings, and independent designers. Shop directly from verified jewelers with confidence.
           </p>
           <p className="text-xs text-[#8c672b] font-medium">
-            Protected by Stripe Connect marketplace splits & automated escrow.
+            Protected by Stripe payments & buyer protection guarantee.
           </p>
         </div>
 
         <div>
           <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-3">
-            Curated Jewelry
+            Shop Jewelry
           </h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/jewelry?category=Rings" className="hover:text-stone-950">Solitaire & Bridal Rings</Link></li>
-            <li><Link href="/jewelry?category=Necklaces" className="hover:text-stone-950">Fine Necklaces & Chokers</Link></li>
+            <li><Link href="/jewelry?category=Rings" className="hover:text-stone-950">Rings & Solitaires</Link></li>
+            <li><Link href="/jewelry?category=Necklaces" className="hover:text-stone-950">Necklaces & Pendants</Link></li>
             <li><Link href="/jewelry?category=Bracelets" className="hover:text-stone-950">Tennis Bracelets</Link></li>
-            <li><Link href="/jewelry?category=Earrings" className="hover:text-stone-950">Precious Earrings</Link></li>
+            <li><Link href="/jewelry?category=Earrings" className="hover:text-stone-950">Earrings & Studs</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-3">
-            Vendor Ateliers
+            Sell With Us
           </h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/shops" className="hover:text-stone-950">Atelier Directory</Link></li>
-            <li><Link href="/dashboard" className="hover:text-stone-950">Vendor Portal Login</Link></li>
-            <li><Link href="/dashboard/products/new" className="hover:text-stone-950">List Fine Jewelry</Link></li>
-            <li><Link href="/register?role=VENDOR" className="hover:text-stone-950">Apply as an Atelier</Link></li>
+            <li><Link href="/shops" className="hover:text-stone-950">Browse Shops</Link></li>
+            <li><Link href="/dashboard" className="hover:text-stone-950">Seller Dashboard</Link></li>
+            <li><Link href="/dashboard/products/new" className="hover:text-stone-950">Add a New Product</Link></li>
+            <li><Link href="/register?role=VENDOR" className="hover:text-stone-950">Open a Jewelry Shop</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-3">
-            Governance & Trust
+            Trust & Support
           </h4>
           <ul className="space-y-2 text-xs">
-            <li><Link href="/admin/vendors" className="hover:text-stone-950">KYC Verification</Link></li>
-            <li><Link href="/admin/platform-fees" className="hover:text-stone-950">Platform Split Fees</Link></li>
-            <li><span className="text-stone-500">Conflict-Free Kimberley Process</span></li>
-            <li><span className="text-stone-500">GIA / IGI Certification Standards</span></li>
+            <li><Link href="/admin/vendors" className="hover:text-stone-950">Verified Sellers</Link></li>
+            <li><Link href="/admin/platform-fees" className="hover:text-stone-950">Pricing & Fees</Link></li>
+            <li><span className="text-stone-500">100% Conflict-Free Sourcing</span></li>
+            <li><span className="text-stone-500">GIA / IGI Quality Standards</span></li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-[#e8ded4] py-6 text-center text-xs text-stone-500">
-        © 2026 Eternelle Gems Multi-Vendor Haute Joaillerie Marketplace. All rights reserved.
+        © 2026 Éternelle Gems Jewelry Marketplace. All rights reserved.
       </div>
     </footer>
   );
