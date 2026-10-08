@@ -97,21 +97,42 @@ export function Navbar() {
         {/* Right Action Icons & Auth */}
         <div className="flex items-center gap-3">
           {/* Quick RBAC Links */}
+          {/* Quick RBAC Links */}
           <div className="hidden lg:flex items-center gap-1.5 mr-1 border-r border-[#ede5dc] pr-3 text-[11px] font-medium uppercase tracking-wider">
-            <Link
-              href="/dashboard"
-              className="px-2.5 py-1 rounded-full text-[#9c7936] hover:bg-[#faf5ed] transition-colors flex items-center gap-1"
-            >
-              <Store className="w-3.5 h-3.5" />
-              <span>Seller Dashboard</span>
-            </Link>
-            <Link
-              href="/admin/vendors"
-              className="px-2.5 py-1 rounded-full text-emerald-800 hover:bg-emerald-50 transition-colors flex items-center gap-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Admin</span>
-            </Link>
+            {currentUser?.role === "VENDOR" ? (
+              <Link
+                href="/dashboard"
+                className="px-3 py-1.5 rounded-full bg-[#faf5ed] border border-[#e8d5b5] text-[#826229] hover:bg-[#f3e7d5] transition-colors flex items-center gap-1.5 font-semibold text-xs shadow-xs"
+              >
+                <Store className="w-3.5 h-3.5 text-[#b48c48]" />
+                <span>Vendor Dashboard</span>
+              </Link>
+            ) : currentUser?.role === "ADMIN" ? (
+              <>
+                <Link
+                  href="/admin/vendors"
+                  className="px-2.5 py-1 rounded-full text-emerald-800 hover:bg-emerald-50 transition-colors flex items-center gap-1 font-semibold"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin</span>
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="px-2.5 py-1 rounded-full text-[#9c7936] hover:bg-[#faf5ed] transition-colors flex items-center gap-1"
+                >
+                  <Store className="w-3.5 h-3.5" />
+                  <span>Vendor Suite</span>
+                </Link>
+              </>
+            ) : !currentUser ? (
+              <Link
+                href="/register"
+                className="px-2.5 py-1 rounded-full text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1"
+              >
+                <Store className="w-3.5 h-3.5 text-stone-400" />
+                <span>Open Atelier</span>
+              </Link>
+            ) : null}
           </div>
 
           {/* Cart Icon */}
@@ -162,13 +183,24 @@ export function Navbar() {
                   </div>
 
                   <div className="py-1 text-xs text-stone-700">
+                    {currentUser.role === "BUYER" && (
+                      <Link
+                        href="/buyer-dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-[#faf5ed] hover:text-[#826229] font-medium"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-[#b48c48]" />
+                        <span>My Vault & Orders</span>
+                      </Link>
+                    )}
+
                     {currentUser.role === "VENDOR" && (
                       <Link
                         href="/dashboard"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 hover:bg-[#faf5ed] hover:text-[#826229]"
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-[#faf5ed] hover:text-[#826229] font-medium"
                       >
-                        <Store className="w-3.5 h-3.5" />
+                        <Store className="w-3.5 h-3.5 text-[#b48c48]" />
                         <span>Vendor Dashboard</span>
                       </Link>
                     )}
@@ -177,9 +209,9 @@ export function Navbar() {
                       <Link
                         href="/admin/vendors"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 hover:bg-emerald-50 hover:text-emerald-900"
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-emerald-50 hover:text-emerald-900 font-medium"
                       >
-                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Admin Governance</span>
                       </Link>
                     )}
@@ -189,7 +221,7 @@ export function Navbar() {
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 hover:bg-[#faf8f5]"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <Sparkles className="w-3.5 h-3.5 text-stone-500" />
                       <span>Browse Collections</span>
                     </Link>
                   </div>
@@ -245,20 +277,39 @@ export function Navbar() {
             >
               Jewelry Shops
             </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-[#9c7936] flex items-center gap-2"
-            >
-              <Store className="w-4 h-4" /> Seller Dashboard
-            </Link>
-            <Link
-              href="/admin/vendors"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-emerald-700 flex items-center gap-2"
-            >
-              <ShieldCheck className="w-4 h-4" /> Admin Portal
-            </Link>
+            {currentUser?.role === "BUYER" ? (
+              <Link
+                href="/buyer-dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#9c7936] flex items-center gap-2 font-semibold"
+              >
+                <ShoppingBag className="w-4 h-4" /> Collector Vault & Orders
+              </Link>
+            ) : currentUser?.role === "VENDOR" ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#9c7936] flex items-center gap-2"
+              >
+                <Store className="w-4 h-4" /> Seller Dashboard
+              </Link>
+            ) : currentUser?.role === "ADMIN" ? (
+              <Link
+                href="/admin/vendors"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-emerald-700 flex items-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4" /> Admin Portal
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-stone-800 hover:text-[#a37d36]"
+              >
+                Sign In
+              </Link>
+            )}
 
             {currentUser ? (
               <button

@@ -4,10 +4,11 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Read role from cookie, query parameter (for easy demo testing), or header
+  // Read role from cookie, query parameter (for demo testing), or header
   const roleParam = request.nextUrl.searchParams.get("role") || request.nextUrl.searchParams.get("asRole");
   const roleCookie = request.cookies.get("user_role")?.value;
-  const currentRole = (roleParam || roleCookie || "VENDOR").toUpperCase();
+  const sessionCookie = request.cookies.get("auth_session")?.value;
+  const currentRole = (roleParam || roleCookie || "").toUpperCase();
 
   const response = NextResponse.next();
 
@@ -16,7 +17,13 @@ export function middleware(request: NextRequest) {
     response.cookies.set("user_role", currentRole, { path: "/" });
   }
 
-  // Restrict Vendor Dashboard: Accessible to VENDOR or ADMIN
+  // 1. If an already authenticated user visits /login or /register, redirect to Home Page ("/")
+  if ((pathname === "/login" || pathname === "/register") && (sessionCookie || roleCookie)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // 2. Protect Vendor Dashboard (/dashboard/:path*)
+  // Accessible to VENDOR or ADMIN. If a BUYER or unauthenticated user tries to enter:
   if (pathname.startsWith("/dashboard")) {
     if (currentRole !== "VENDOR" && currentRole !== "ADMIN") {
       const loginUrl = new URL("/login", request.url);
@@ -26,7 +33,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Restrict Admin Portal: Accessible ONLY to ADMIN
+  // 3. Protect Admin Portal (/admin/:path*)
+  // Accessible ONLY to ADMIN
   if (pathname.startsWith("/admin")) {
     if (currentRole !== "ADMIN") {
       const loginUrl = new URL("/login", request.url);
@@ -40,5 +48,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/login",
+    "/register",
+  ],
 };

@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { MOCK_SHOPS, MOCK_PRODUCTS } from "@/lib/mock-data";
 import { ProductCard } from "@/components/jewelry/ProductCard";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Star, MapPin, Sparkles, MessageCircle, Info } from "lucide-react";
+import { getServerSession } from "@/lib/auth-server";
+import { ShieldCheck, Star, MapPin, Sparkles, MessageCircle, Info, Store, ArrowRight } from "lucide-react";
 
 export function generateStaticParams() {
   return MOCK_SHOPS.map((s) => ({ slug: s.slug }));
@@ -22,6 +23,9 @@ export default async function ShopStorefrontPage({
     notFound();
   }
 
+  const session = await getServerSession();
+  const isVendor = session?.role === "VENDOR" || session?.role === "ADMIN";
+
   const shopProducts = MOCK_PRODUCTS.filter((p) => p.shopId === shop.id);
 
   return (
@@ -37,7 +41,25 @@ export default async function ShopStorefrontPage({
       </div>
 
       {/* Atelier Profile Card */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-10 space-y-4">
+        {/* Vendor Owner Quick Action Banner */}
+        {isVendor && (
+          <div className="p-4 rounded-2xl bg-[#faf5ed] border border-[#e5d2b3] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm animate-in fade-in">
+            <div className="flex items-center gap-2.5 text-xs text-[#826229]">
+              <Store className="w-4 h-4 text-[#b48c48] shrink-0" />
+              <span>
+                <strong>Atelier Owner Mode:</strong> You are viewing your public shop. Click below to manage products, categories & analytics.
+              </span>
+            </div>
+            <Link
+              href="/dashboard"
+              className="gold-btn px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shrink-0 shadow-xs"
+            >
+              <span>Open Vendor Dashboard</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
         <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#ede5dc] shadow-md flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
             <div className="relative h-24 w-24 rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white shrink-0">

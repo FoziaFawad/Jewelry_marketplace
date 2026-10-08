@@ -3,13 +3,101 @@ import prisma from "@/lib/prisma";
 import { createSessionToken } from "@/lib/auth-server";
 import { Role } from "@/types";
 
+/**
+ * GET: Initiates official Google OAuth 2.0 flow
+ */
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const role = searchParams.get("role") || "BUYER";
+  const callbackUrl = searchParams.get("callbackUrl") || "";
+
+  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const redirectUri = `${baseUrl}/api/auth/google/callback`;
+
+  if (!clientId || clientId.includes("placeholder") || clientId.length < 10) {
+    // Return friendly error page if Google OAuth credentials haven't been provided yet
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Google OAuth Setup Required</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0c0a09; color: #f5f5f4; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+          .card { background: #1c1917; border: 1px solid #292524; border-radius: 16px; padding: 32px; max-width: 500px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+          h2 { color: #d4af37; margin-top: 0; font-family: serif; }
+          p { color: #a8a29e; font-size: 14px; line-height: 1.6; }
+          code { background: #292524; color: #facc15; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+          .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #b48c48; color: #fff; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 500; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h2>Google OAuth Configuration</h2>
+          <p>To enable real Google Sign-In, please add your Google Cloud credentials to your <code>.env</code> file:</p>
+          <p style="text-align: left; background: #0c0a09; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #e7e5e4;">
+            GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"<br/>
+            GOOGLE_CLIENT_SECRET="your-google-client-secret"
+          </p>
+          <p>Obtain these from the <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #d4af37;">Google Cloud Console</a>.</p>
+          <a class="btn" href="/login">Return to Login</a>
+        </div>
+      </body>
+      </html>
+    `;
+    return new Response(html, {
+      headers: { "Content-Type": "text/html" },
+    });
+  }
+
+  const statePayload = Buffer.from(
+    JSON.stringify({ role, callbackUrl, timestamp: Date.now() })
+  ).toString("base64url");
+
+  const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleAuthUrl.searchParams.set("client_id", clientId);
+  googleAuthUrl.searchParams.set("redirect_uri", redirectUri);
+  googleAuthUrl.searchParams.set("response_type", "code");
+  googleAuthUrl.searchParams.set("scope", "openid email profile");
+  googleAuthUrl.searchParams.set("access_type", "offline");
+  googleAuthUrl.searchParams.set("prompt", "select_account");
+  googleAuthUrl.searchParams.set("state", statePayload);
+
+  return NextResponse.redirect(googleAuthUrl.toString());
+}
+
+/**
+ * POST: Handles direct token/credential login or simulated sign-in
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, name, role = "BUYER" } = body;
+    const { credential, email, name, role = "BUYER" } = body;
 
-    const googleEmail = (email || "google.collector@eternelle.com").toLowerCase().trim();
-    const googleName = name || "Google Verified Collector";
+    let userEmail = email;
+    let userName = name;
+
+    // If Google ID token was passed (e.g. from Google One Tap / GIS)
+    if (credential) {
+      try {
+        const parts = credential.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(
+            Buffer.from(parts[1], "base64url").toString("utf-8")
+          );
+          if (payload.email) {
+            userEmail = payload.email;
+            userName = payload.name || payload.given_name || userName;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to decode Google credential token:", err);
+      }
+    }
+
+    const googleEmail = (userEmail || "google.collector@eternelle.com").toLowerCase().trim();
+    const googleName = userName || "Google Verified Collector";
     const selectedRole = (role === "VENDOR" ? "VENDOR" : "BUYER") as Role;
 
     // Check if user already exists
@@ -84,7 +172,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Successfully signed in with Google",
       user: sessionData,
-      redirectUrl: user.role === "VENDOR" ? "/dashboard" : user.role === "ADMIN" ? "/admin/vendors" : "/jewelry",
+      redirectUrl: "/",
     });
 
     // Set auth cookies

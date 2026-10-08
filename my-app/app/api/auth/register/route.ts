@@ -1,17 +1,26 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { hashPassword, createSessionToken } from "@/lib/auth-server";
+import { verifyCode } from "@/lib/verification";
 import { Role } from "@/types";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password, role = "BUYER", shopName } = body;
+    const { name, email, password, role = "BUYER", shopName, code, verificationCode } = body;
+    const finalCode = (code || verificationCode || "").toString().trim();
 
     // Validation
     if (!email || !email.includes("@")) {
       return NextResponse.json(
         { success: false, error: "Please provide a valid email address" },
+        { status: 400 }
+      );
+    }
+
+    if (!finalCode) {
+      return NextResponse.json(
+        { success: false, error: "Verification code is required. Please verify your email." },
         { status: 400 }
       );
     }
@@ -31,6 +40,16 @@ export async function POST(request: Request) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+
+    // Check verification code
+    const verification = verifyCode(normalizedEmail, finalCode);
+    if (!verification.valid) {
+      return NextResponse.json(
+        { success: false, error: verification.error || "Invalid verification code" },
+        { status: 400 }
+      );
+    }
+
     const selectedRole = (role === "VENDOR" ? "VENDOR" : "BUYER") as Role;
 
     // Check if account already exists in Neon DB
@@ -94,7 +113,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Account created successfully",
       user: sessionData,
-      redirectUrl: selectedRole === "VENDOR" ? "/dashboard" : "/jewelry",
+      redirectUrl: "/",
     }, { status: 201 });
 
     // Set auth cookies

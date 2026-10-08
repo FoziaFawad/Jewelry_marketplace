@@ -70,11 +70,14 @@ function LoginFormContent() {
 
       setSuccessMessage(`Welcome back, ${data.user.name || "User"}! Logging you in...`);
 
-      const target = callbackUrl || data.redirectUrl || "/jewelry";
+      const target =
+        callbackUrl && callbackUrl !== "/login" && callbackUrl !== "/register"
+          ? callbackUrl
+          : data.redirectUrl || "/";
+
       setTimeout(() => {
-        router.push(target);
-        router.refresh();
-      }, 700);
+        window.location.href = target;
+      }, 500);
     } catch {
       setErrorMessage("Could not connect. Please check your internet connection.");
       setLoading(false);
@@ -82,39 +85,10 @@ function LoginFormContent() {
   };
 
   // Google Sign-In
-  const handleGoogleSignIn = async () => {
-    setErrorMessage("");
+  const handleGoogleSignIn = () => {
     setGoogleLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "google.collector@eternelle.com",
-          name: "Google Customer",
-          role: "BUYER",
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setErrorMessage(data.error || "Google login failed. Please try again.");
-        setGoogleLoading(false);
-        return;
-      }
-
-      setSuccessMessage("Signed in with Google! Redirecting...");
-      const target = callbackUrl || data.redirectUrl || "/jewelry";
-      setTimeout(() => {
-        router.push(target);
-        router.refresh();
-      }, 600);
-    } catch {
-      setErrorMessage("Could not connect to Google sign-in.");
-      setGoogleLoading(false);
-    }
+    const target = callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
+    window.location.href = `/api/auth/google${target}`;
   };
 
   return (

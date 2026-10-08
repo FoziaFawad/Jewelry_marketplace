@@ -120,3 +120,4 @@ model OrderItem {
   quantity       Int       @default(1)
   priceAtSale    Decimal   @db.Decimal(10, 2)
 }
+

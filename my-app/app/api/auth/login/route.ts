@@ -72,12 +72,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Authentication successful",
       user: sessionData,
-      redirectUrl:
-        user.role === "VENDOR"
-          ? "/dashboard"
-          : user.role === "ADMIN"
-          ? "/admin/vendors"
-          : "/jewelry",
+      redirectUrl: "/",
     });
 
     // Set secure authentication cookies

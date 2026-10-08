@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/auth-server";
 import { SearchBar } from "@/components/marketplace/SearchBar";
 import { ProductCard } from "@/components/jewelry/ProductCard";
 import { ShopCard } from "@/components/marketplace/ShopCard";
