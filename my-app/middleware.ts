@@ -4,16 +4,35 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Read role from cookie, query parameter (for demo testing), or header
+  // Read role and user info from cookies or query parameters
   const roleParam = request.nextUrl.searchParams.get("role") || request.nextUrl.searchParams.get("asRole");
   const roleCookie = request.cookies.get("user_role")?.value;
   const sessionCookie = request.cookies.get("auth_session")?.value;
-  const currentRole = (roleParam || roleCookie || "").toUpperCase();
+  const emailCookie = request.cookies.get("user_email")?.value;
+  let currentRole = (roleParam || roleCookie || "").toUpperCase();
+
+  // If user is Muhammad Sohaib, always treat as ADMIN
+  if (emailCookie && emailCookie.toLowerCase() === "muhammadsohaib.19477@gmail.com") {
+    currentRole = "ADMIN";
+  }
+
+  // Also check auth session payload
+  if (sessionCookie) {
+    try {
+      const payloadStr = atob(sessionCookie.replace(/-/g, "+").replace(/_/g, "/"));
+      const parsed = JSON.parse(payloadStr);
+      if (parsed.email && parsed.email.toLowerCase() === "muhammadsohaib.19477@gmail.com") {
+        currentRole = "ADMIN";
+      } else if (parsed.role && !roleParam) {
+        currentRole = parsed.role.toUpperCase();
+      }
+    } catch {}
+  }
 
   const response = NextResponse.next();
 
-  // If role is set via URL parameter in demo mode, persist to cookie
-  if (roleParam) {
+  // If role is set via URL parameter or was normalized, persist to cookie
+  if (roleParam || (currentRole === "ADMIN" && roleCookie !== "ADMIN" && emailCookie?.toLowerCase() === "muhammadsohaib.19477@gmail.com")) {
     response.cookies.set("user_role", currentRole, { path: "/" });
   }
 

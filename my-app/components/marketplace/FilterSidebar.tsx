@@ -1,16 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
 
-const CATEGORIES = ["All", "Rings", "Necklaces", "Bracelets", "Earrings"];
+const DEFAULT_CATEGORIES = ["All", "Rings", "Necklaces", "Bracelets", "Earrings", "Bridal Sets"];
 const METAL_TYPES = ["All", "Gold", "White Gold", "Rose Gold", "Platinum", "Silver"];
 const GEMSTONES = ["All", "Diamond", "Emerald", "Sapphire", "Ruby", "Pearl", "Opal"];
 
 export function FilterSidebar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.data && data.data.length > 0) {
+          const names = ["All", ...data.data.map((c: any) => c.name)];
+          setCategories(names);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const currentCategory = searchParams.get("category") || "All";
   const currentMetal = searchParams.get("metalType") || "All";
@@ -75,7 +88,7 @@ export function FilterSidebar() {
           Jewelry Category
         </label>
         <div className="flex flex-wrap gap-1.5">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => updateParam("category", cat)}

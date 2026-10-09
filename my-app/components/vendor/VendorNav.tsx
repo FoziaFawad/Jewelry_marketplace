@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,29 +12,56 @@ import {
   Settings,
   Store,
   ArrowUpRight,
+  Layers,
 } from "lucide-react";
+
+interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  shopId?: string | null;
+  shopSlug?: string | null;
+  shopName?: string | null;
+}
 
 export function VendorNav() {
   const pathname = usePathname();
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const links = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/products", label: "My Products", icon: Gem },
-    { href: "/dashboard/products/new", label: "Add Product", icon: PlusCircle },
+    { href: "/dashboard/products", label: "Inventory", icon: Gem },
+    { href: "/dashboard/products/new", label: "Add Creation", icon: PlusCircle },
+    { href: "/dashboard/categories", label: "Categories", icon: Layers },
     { href: "/dashboard/orders", label: "Orders", icon: PackageCheck },
     { href: "/dashboard/settings", label: "Shop Settings", icon: Settings },
   ];
+
+  const shopDisplayName = currentUser?.shopName || "Master Jewelry Atelier";
+  const publicShopSlug = currentUser?.shopSlug || "naurattan-jewelers";
 
   return (
     <div className="w-full border-b border-[#ede5dc] bg-white/95 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="text-sm font-serif font-semibold tracking-wide text-stone-900">
-              NAURATTAN HERITAGE JEWELERS
+            <span className="text-sm font-serif font-semibold tracking-wide text-stone-900 uppercase">
+              {shopDisplayName}
             </span>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#faf5ed] text-[#826229] border border-[#ecd8b0] font-medium">
-              Seller Account
+              Seller Suite
             </span>
           </Link>
 
@@ -66,20 +93,31 @@ export function VendorNav() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/shops/aurora-gems"
-            target="_blank"
-            className="text-xs text-[#826229] hover:text-[#5c441b] flex items-center gap-1 font-medium"
-          >
-            <Store className="w-3.5 h-3.5 text-[#9c7936]" />
-            <span>View Public Shop</span>
-            <ArrowUpRight className="w-3 h-3" />
-          </Link>
+          {currentUser?.shopId ? (
+            <Link
+              href={`/shops/${publicShopSlug}`}
+              target="_blank"
+              className="text-xs text-[#826229] hover:text-[#5c441b] flex items-center gap-1 font-medium"
+            >
+              <Store className="w-3.5 h-3.5 text-[#9c7936]" />
+              <span>Public Storefront</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          ) : (
+            <Link
+              href="/shops/new"
+              className="gold-btn text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1 font-semibold"
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Create Shop</span>
+            </Link>
+          )}
+
           <Link
             href="/"
             className="text-xs text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-full bg-[#faf6f0] border border-[#e8ded4] shadow-2xs"
           >
-            Storefront
+            Buyer Mall
           </Link>
         </div>
       </div>

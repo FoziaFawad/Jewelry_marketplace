@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, UploadCloud, CheckCircle2, AlertCircle, X, Plus, Store } from "lucide-react";
+import { ArrowLeft, UploadCloud, CheckCircle2, AlertCircle, X, Plus, Trash2 } from "lucide-react";
 
 interface CategoryOption {
   id: string;
@@ -19,63 +19,76 @@ interface ShopOption {
   slug: string;
 }
 
-export default function NewProductPage() {
+export default function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Dynamic dropdowns
+  // Dropdown options
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [shops, setShops] = useState<ShopOption[]>([]);
-  const [selectedShopId, setSelectedShopId] = useState("");
 
   // Form State
+  const [shopId, setShopId] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Rings");
   const [metalType, setMetalType] = useState("Gold");
   const [metalPurity, setMetalPurity] = useState("22K");
   const [gemstoneType, setGemstoneType] = useState("Diamond");
-  const [caratWeight, setCaratWeight] = useState("2.50");
+  const [caratWeight, setCaratWeight] = useState("");
   const [certifiedBy, setCertifiedBy] = useState("GIA");
-  const [price, setPrice] = useState("125000");
+  const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState<string[]>([
-    "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
-  ]);
+  const [images, setImages] = useState<string[]>([]);
   const [customImageUrl, setCustomImageUrl] = useState("");
 
   useEffect(() => {
-    // 1. Fetch Categories
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success && d.data && d.data.length > 0) {
-          setCategories(d.data);
-          setCategory(d.data[0].name);
-        }
-      })
-      .catch(console.error);
-
-    // 2. Fetch Shops & Session
+    // 1. Fetch categories & shops
     Promise.all([
-      fetch("/api/auth/me").then((r) => r.json()),
+      fetch("/api/categories").then((r) => r.json()),
       fetch("/api/shops").then((r) => r.json()),
+      fetch(`/api/products/${id}`).then((r) => r.json()),
     ])
-      .then(([meData, shopsData]) => {
-        if (shopsData.success && shopsData.data && shopsData.data.length > 0) {
-          setShops(shopsData.data);
-          if (meData.authenticated && meData.user?.shopId) {
-            setSelectedShopId(meData.user.shopId);
-          } else {
-            setSelectedShopId(shopsData.data[0].id);
-          }
+      .then(([catData, shopData, prodData]) => {
+        if (catData.success && catData.data) setCategories(catData.data);
+        if (shopData.success && shopData.data) setShops(shopData.data);
+
+        if (prodData.success && prodData.data) {
+          const p = prodData.data;
+          setTitle(p.title || "");
+          setDescription(p.description || "");
+          setCategory(p.category || "Rings");
+          setMetalType(p.metalType || "Gold");
+          setMetalPurity(p.metalPurity || "22K");
+          setGemstoneType(p.gemstoneType || "None");
+          setCaratWeight(p.caratWeight ? p.caratWeight.toString() : "");
+          setCertifiedBy(p.certifiedBy || "GIA");
+          setPrice(p.price ? p.price.toString() : "");
+          setStock(p.stock ? p.stock.toString() : "1");
+          setImages(p.images && p.images.length > 0 ? p.images : []);
+          setShopId(p.shopId || "");
+        } else {
+          setError(prodData.error || "Product not found");
         }
       })
-      .catch(console.error);
-  }, []);
+      .catch((err) => {
+        setError("Failed to load product details");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [id]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -98,8 +111,6 @@ export default function NewProductPage() {
         const data = await res.json();
         if (data.success && data.publicUrl) {
           setImages((prev) => [...prev, data.publicUrl]);
-        } else {
-          setError(data.error || "Failed to upload image file");
         }
       }
     } catch {
@@ -127,17 +138,12 @@ export default function NewProductPage() {
       return;
     }
 
-    if (!selectedShopId && shops.length === 0) {
-      setError("Please create a boutique shop before uploading jewelry creations.");
-      return;
-    }
-
     try {
       setSubmitting(true);
       setError(null);
 
-      const res = await fetch("/api/products", {
-        method: "POST",
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -151,7 +157,7 @@ export default function NewProductPage() {
           gemstoneType,
           caratWeight: caratWeight ? parseFloat(caratWeight) : null,
           certifiedBy,
-          shopId: selectedShopId || shops[0]?.id,
+          shopId: shopId || undefined,
         }),
       });
 
@@ -163,14 +169,44 @@ export default function NewProductPage() {
           router.refresh();
         }, 1200);
       } else {
-        setError(data.error || "Failed to create product");
+        setError(data.error || "Failed to update product");
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to submit product");
+      setError(err?.message || "Failed to update product");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to permanently delete "${title}"? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        router.push("/dashboard/products");
+        router.refresh();
+      } else {
+        setError(data.error || "Failed to delete product");
+      }
+    } catch {
+      setError("Network error deleting product");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto py-12 text-center text-xs text-stone-500">
+        Loading jewelry creation details from database...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -180,24 +216,34 @@ export default function NewProductPage() {
         className="inline-flex items-center gap-1.5 text-xs text-[#826229] hover:text-[#5c441b] transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        Back to Fine Jewelry Inventory
+        Back to Inventory
       </Link>
 
-      <div className="flex items-center justify-between pb-4 border-b border-[#ede5dc]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#ede5dc]">
         <div>
           <h1 className="text-2xl font-serif font-normal text-stone-900">
-            List New Fine Jewelry Creation
+            Edit Jewelry Creation
           </h1>
           <p className="text-xs text-stone-500 mt-1">
-            Specify precious metal purity, gemstone carat weight, and third-party laboratory certification.
+            Update specifications, hallmarks, carat weights, pricing, or catalog photography.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="px-4 py-2 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer self-start sm:self-auto transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>{deleting ? "Deleting..." : "Delete Creation"}</span>
+        </button>
       </div>
 
       {success && (
         <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" />
-          <span>Jewelry creation successfully hallmarked and listed to your boutique! Redirecting...</span>
+          <span>Jewelry creation successfully updated! Redirecting to inventory...</span>
         </div>
       )}
 
@@ -212,44 +258,33 @@ export default function NewProductPage() {
         {/* Boutique Atelier Selection */}
         <div className="space-y-4">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
-            1. Boutique Association
+            1. Boutique Assignment
           </h2>
           <div className="space-y-1.5">
             <label className="block text-xs font-medium uppercase tracking-wider text-stone-600">
-              Assigned Atelier Shop
+              Atelier Boutique
             </label>
-            {shops.length > 0 ? (
-              <select
-                value={selectedShopId}
-                onChange={(e) => setSelectedShopId(e.target.value)}
-                className="w-full rounded-xl bg-white border border-[#dcd1c4] px-3.5 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#b48c48]"
-                required
-              >
-                {shops.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} ({s.slug})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="p-4 rounded-xl bg-[#faf5ed] border border-[#ecd8b0] text-xs text-[#826229] flex items-center justify-between">
-                <span>No shops found. Please create your boutique shop first.</span>
-                <Link href="/shops/new" className="underline font-semibold">
-                  Create Shop
-                </Link>
-              </div>
-            )}
+            <select
+              value={shopId}
+              onChange={(e) => setShopId(e.target.value)}
+              className="w-full rounded-xl bg-white border border-[#dcd1c4] px-3.5 py-2.5 text-sm text-stone-900 focus:outline-none focus:border-[#b48c48]"
+            >
+              {shops.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.slug})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Core Info */}
         <div className="space-y-4 pt-4 border-t border-[#ede5dc]">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
-            2. Creation Title & Overview
+            2. Title & Craftsmanship Details
           </h2>
           <Input
             label="Product Title"
-            placeholder="e.g. Royal Solitaire 2.5ct Diamond Engagement Ring"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -263,7 +298,6 @@ export default function NewProductPage() {
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe gemstone color saturation, clarity, cut grade, and atelier mounting technique..."
               className="w-full rounded-xl bg-white border border-[#dcd1c4] px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#b48c48]"
               required
             />
@@ -298,7 +332,6 @@ export default function NewProductPage() {
                     <option value="Necklaces">Necklaces</option>
                     <option value="Bracelets">Bracelets</option>
                     <option value="Earrings">Earrings</option>
-                    <option value="Bridal Sets">Bridal Sets</option>
                   </>
                 )}
               </select>
@@ -366,7 +399,6 @@ export default function NewProductPage() {
               step="0.01"
               value={caratWeight}
               onChange={(e) => setCaratWeight(e.target.value)}
-              placeholder="e.g. 2.50"
             />
 
             <div className="space-y-1.5">
@@ -389,7 +421,7 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Pricing & Inventory */}
+        {/* Pricing & Stock */}
         <div className="space-y-4 pt-4 border-t border-[#ede5dc]">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
             4. Pricing & Inventory
@@ -403,7 +435,7 @@ export default function NewProductPage() {
               required
             />
             <Input
-              label="Stock Available (Units)"
+              label="Stock Available"
               type="number"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
@@ -412,40 +444,32 @@ export default function NewProductPage() {
           </div>
         </div>
 
-        {/* Cloudinary Photography & Media Upload Area */}
+        {/* Images */}
         <div className="space-y-4 pt-4 border-t border-[#ede5dc]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
-              5. High-Resolution Jewelry Photography
-            </h2>
-            <span className="text-[11px] text-stone-500 font-medium">Cloudinary Storage Active</span>
-          </div>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
+            5. Gallery Photography (Cloudinary)
+          </h2>
 
-          {/* Upload Dropzone */}
           <div className="p-6 rounded-2xl border-2 border-dashed border-[#dcd1c4] hover:border-[#b48c48] transition-colors text-center bg-[#fbf9f6]">
             <input
               type="file"
               multiple
               accept="image/*"
-              id="product-images-upload"
+              id="edit-product-images-upload"
               onChange={handleFileUpload}
               className="hidden"
             />
-            <label htmlFor="product-images-upload" className="cursor-pointer block">
+            <label htmlFor="edit-product-images-upload" className="cursor-pointer block">
               <UploadCloud className="w-8 h-8 text-[#b48c48] mx-auto mb-2" />
               <p className="text-xs text-stone-900 font-semibold">
-                {uploadingImage ? "Uploading photos to Cloudinary..." : "Click to upload jewelry photos from your computer"}
-              </p>
-              <p className="text-[11px] text-stone-500 mt-1">
-                Supports JPG, PNG, WEBP (stored securely in Cloudinary)
+                {uploadingImage ? "Uploading to Cloudinary..." : "Upload additional jewelry photos"}
               </p>
             </label>
           </div>
 
-          {/* Add Image URL option */}
           <div className="flex gap-2">
             <Input
-              placeholder="Or paste an image URL (e.g. Unsplash, CDN)"
+              placeholder="Or paste an image URL"
               value={customImageUrl}
               onChange={(e) => setCustomImageUrl(e.target.value)}
             />
@@ -460,7 +484,6 @@ export default function NewProductPage() {
             </Button>
           </div>
 
-          {/* Image Previews */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               {images.map((img, idx) => (
@@ -469,8 +492,7 @@ export default function NewProductPage() {
                   <button
                     type="button"
                     onClick={() => removeImage(idx)}
-                    className="absolute top-1.5 right-1.5 p-1 rounded-full bg-stone-900/75 text-white hover:bg-rose-600 transition-colors opacity-90 group-hover:opacity-100"
-                    title="Remove image"
+                    className="absolute top-1.5 right-1.5 p-1 rounded-full bg-stone-900/75 text-white hover:bg-rose-600 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -485,7 +507,7 @@ export default function NewProductPage() {
           )}
         </div>
 
-        {/* Submit Actions */}
+        {/* Buttons */}
         <div className="pt-4 flex justify-end gap-3 border-t border-[#ede5dc]">
           <Link
             href="/dashboard/products"
@@ -500,7 +522,7 @@ export default function NewProductPage() {
             disabled={submitting || uploadingImage}
             className="px-6 rounded-full py-2.5"
           >
-            {submitting ? "Hallmarking & Listing..." : "Publish Creation to Catalog"}
+            {submitting ? "Saving Changes..." : "Save Product Changes"}
           </Button>
         </div>
       </form>

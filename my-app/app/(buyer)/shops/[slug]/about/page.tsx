@@ -1,13 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MOCK_SHOPS } from "@/lib/mock-data";
+import prisma from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, ArrowLeft, Gem, Award, History, CheckCircle } from "lucide-react";
-
-export function generateStaticParams() {
-  return MOCK_SHOPS.map((s) => ({ slug: s.slug }));
-}
 
 export default async function ShopAboutPage({
   params,
@@ -15,7 +11,17 @@ export default async function ShopAboutPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const shop = MOCK_SHOPS.find((s) => s.slug === slug);
+
+  const shop = await prisma.shop.findFirst({
+    where: {
+      OR: [{ slug }, { id: slug }],
+    },
+    include: {
+      _count: {
+        select: { products: true },
+      },
+    },
+  });
 
   if (!shop) {
     notFound();
@@ -42,7 +48,7 @@ export default async function ShopAboutPage({
           About {shop.name}
         </h1>
         <p className="text-sm text-stone-600 leading-relaxed">
-          {shop.description}
+          {shop.description || "Master jewelry atelier showcasing bespoke handcrafted fine jewelry, certified solitaires, and royal bridal collections."}
         </p>
       </div>
 
@@ -52,44 +58,43 @@ export default async function ShopAboutPage({
           <History className="w-5 h-5 text-[#b48c48]" />
           <h3 className="text-sm font-serif font-semibold text-stone-900">Heritage & Provenance</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
-            Founded in {shop.establishedYear || 2018} with roots in {shop.location || "Europe"}, passing master metalwork and micro-pave setting across generations.
+            Preserving master goldsmithing traditions with hand-selected gemstones and authentic Pakistani bridal heritage.
           </p>
         </div>
 
         <div className="p-6 rounded-2xl bg-white border border-[#ede5dc] space-y-3 shadow-2xs">
           <Gem className="w-5 h-5 text-[#b48c48]" />
-          <h3 className="text-sm font-serif font-semibold text-stone-900">Ethical Diamond Sourcing</h3>
+          <h3 className="text-sm font-serif font-semibold text-stone-900">Conflict-Free Stones</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
-            Committed to 100% Kimberley Process certified rough diamonds and conflict-free traceable colored gemstones.
+            All center diamonds and colored gems adhere to the Kimberley Process and GIA/IGI grading standards.
           </p>
         </div>
 
         <div className="p-6 rounded-2xl bg-white border border-[#ede5dc] space-y-3 shadow-2xs">
           <Award className="w-5 h-5 text-[#b48c48]" />
-          <h3 className="text-sm font-serif font-semibold text-stone-900">Independent Certification</h3>
+          <h3 className="text-sm font-serif font-semibold text-stone-900">Official Hallmarks</h3>
           <p className="text-xs text-stone-600 leading-relaxed">
-            Every creation exceeding 1.0 carat carries GIA or IGI certificates alongside custom insurance replacement appraisals.
+            Laser-engraved karat purity stamps (21K, 22K, 24K, 950 Plat) with rigorous laboratory gold assay.
           </p>
         </div>
       </div>
 
-      {/* Trust & Guarantee */}
-      <div className="p-7 rounded-3xl bg-[#f5f0ea] border border-[#ede5dc] space-y-3.5">
-        <h3 className="text-sm font-serif font-semibold text-stone-900">Eternelle Gems Guarantee</h3>
-        <ul className="space-y-2.5 text-xs text-stone-700">
-          <li className="flex items-center gap-2.5">
-            <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
-            <span>Funds held safely in escrow until you receive and inspect your jewelry piece.</span>
-          </li>
-          <li className="flex items-center gap-2.5">
-            <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
-            <span>Complimentary 30-day ring sizing and lifetime cleaning warranty.</span>
-          </li>
-          <li className="flex items-center gap-2.5">
-            <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
-            <span>Fully insured armored courier transit with discrete signature delivery.</span>
-          </li>
-        </ul>
+      {/* Inventory CTA */}
+      <div className="p-8 rounded-3xl bg-[#faf5ed] border border-[#ecd8b0] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 className="text-base font-serif font-semibold text-stone-900">
+            Explore {shop.name}&apos;s Creations
+          </h3>
+          <p className="text-xs text-stone-600 mt-1">
+            Browse currently available handcrafted pieces ready for insured delivery.
+          </p>
+        </div>
+        <Link
+          href={`/shops/${shop.slug}`}
+          className="gold-btn px-6 py-2.5 rounded-full text-xs font-semibold shrink-0 shadow-2xs"
+        >
+          View Collection ({shop._count.products})
+        </Link>
       </div>
     </div>
   );

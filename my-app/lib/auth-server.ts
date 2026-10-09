@@ -78,7 +78,36 @@ export async function getServerSession(): Promise<AuthSessionData | null> {
     const token = cookieStore.get("auth_session")?.value;
     if (token) {
       const decoded = verifySessionToken(token);
-      if (decoded) return decoded;
+      if (decoded) {
+        try {
+          const dbUser = await prisma.user.findFirst({
+            where: {
+              OR: [{ id: decoded.id }, { email: decoded.email }],
+            },
+            include: { shop: true },
+          });
+          if (dbUser) {
+            const isMasterAdmin = dbUser.email.toLowerCase() === "muhammadsohaib.19477@gmail.com";
+            const currentRole = (isMasterAdmin ? "ADMIN" : dbUser.role) as Role;
+            return {
+              id: dbUser.id,
+              name: dbUser.name || decoded.name || "Collector",
+              email: dbUser.email,
+              role: currentRole,
+              shopId: dbUser.shop?.id || decoded.shopId,
+              shopSlug: dbUser.shop?.slug || decoded.shopSlug,
+              shopName: dbUser.shop?.name || decoded.shopName,
+            };
+          }
+        } catch (e) {
+          // Fallback to token if DB temporary network issue
+        }
+
+        if (decoded.email.toLowerCase() === "muhammadsohaib.19477@gmail.com") {
+          return { ...decoded, role: "ADMIN" };
+        }
+        return decoded;
+      }
     }
 
     // Fallback: check user_role cookie if session token is missing
@@ -86,16 +115,18 @@ export async function getServerSession(): Promise<AuthSessionData | null> {
     const emailCookie = cookieStore.get("user_email")?.value;
 
     if (emailCookie) {
+      const normalizedEmail = emailCookie.toLowerCase();
       const user = await prisma.user.findUnique({
-        where: { email: emailCookie },
+        where: { email: normalizedEmail },
         include: { shop: true },
       });
       if (user) {
+        const isMasterAdmin = user.email.toLowerCase() === "muhammadsohaib.19477@gmail.com";
         return {
           id: user.id,
           name: user.name || "Collector",
           email: user.email,
-          role: user.role as Role,
+          role: (isMasterAdmin ? "ADMIN" : user.role) as Role,
           shopId: user.shop?.id,
           shopSlug: user.shop?.slug,
           shopName: user.shop?.name,

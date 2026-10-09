@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
+import prisma from "@/lib/prisma";
 import { FilterSidebar } from "@/components/marketplace/FilterSidebar";
 import { ProductCard } from "@/components/jewelry/ProductCard";
 import { SearchBar } from "@/components/marketplace/SearchBar";
-import { MOCK_PRODUCTS } from "@/lib/mock-data";
 import { Sparkles, Gem } from "lucide-react";
 
 interface PageProps {
@@ -23,71 +23,89 @@ interface PageProps {
 async function JewelryCatalogContent({ searchParams }: PageProps) {
   const filters = await searchParams;
 
-  let products = [...MOCK_PRODUCTS];
+  const where: any = {
+    isBanned: false,
+    shop: { status: "ACTIVE" },
+  };
 
-  // 1. Text Query Filter
+  // 1. Text Query
   if (filters.query) {
-    const q = filters.query.toLowerCase();
-    products = products.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.metalType.toLowerCase().includes(q) ||
-        (p.gemstoneType && p.gemstoneType.toLowerCase().includes(q)) ||
-        (p.shop && p.shop.name.toLowerCase().includes(q))
-    );
+    const q = filters.query.trim();
+    where.OR = [
+      { title: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { metalType: { contains: q, mode: "insensitive" } },
+      { gemstoneType: { contains: q, mode: "insensitive" } },
+      { shop: { name: { contains: q, mode: "insensitive" } } },
+    ];
   }
 
-  // 2. Category Filter
+  // 2. Category
   if (filters.category && filters.category !== "All") {
-    products = products.filter(
-      (p) => p.category.toLowerCase() === filters.category?.toLowerCase()
-    );
+    where.category = { equals: filters.category, mode: "insensitive" };
   }
 
-  // 3. Metal Type Filter
+  // 3. Metal Type
   if (filters.metalType && filters.metalType !== "All") {
-    products = products.filter((p) =>
-      p.metalType.toLowerCase().includes(filters.metalType!.toLowerCase())
-    );
+    where.metalType = { contains: filters.metalType, mode: "insensitive" };
   }
 
-  // 4. Gemstone Filter
+  // 4. Gemstone Type
   if (filters.gemstoneType && filters.gemstoneType !== "All") {
-    products = products.filter(
-      (p) => p.gemstoneType?.toLowerCase() === filters.gemstoneType?.toLowerCase()
-    );
+    where.gemstoneType = { equals: filters.gemstoneType, mode: "insensitive" };
   }
 
-  // 5. Price Filter
-  if (filters.minPrice) {
-    const min = parseFloat(filters.minPrice);
-    if (!isNaN(min)) products = products.filter((p) => p.price >= min);
-  }
-  if (filters.maxPrice) {
-    const max = parseFloat(filters.maxPrice);
-    if (!isNaN(max)) products = products.filter((p) => p.price <= max);
+  // 5. Price
+  if (filters.minPrice || filters.maxPrice) {
+    where.price = {};
+    if (filters.minPrice) where.price.gte = parseFloat(filters.minPrice);
+    if (filters.maxPrice) where.price.lte = parseFloat(filters.maxPrice);
   }
 
-  // 6. Carat Filter
+  // 6. Carat
   if (filters.minCarat) {
-    const carat = parseFloat(filters.minCarat);
-    if (!isNaN(carat)) products = products.filter((p) => (p.caratWeight || 0) >= carat);
+    const minCarat = parseFloat(filters.minCarat);
+    if (!isNaN(minCarat)) {
+      where.caratWeight = { gte: minCarat };
+    }
   }
 
   // 7. Certified Only
   if (filters.certifiedOnly === "true") {
-    products = products.filter((p) => p.certifiedBy && p.certifiedBy !== "None");
+    where.certifiedBy = { not: null, notIn: ["None", ""] };
   }
 
-  // 8. Sorting
+  // Sorting
+  let orderBy: any = { createdAt: "desc" };
   if (filters.sortBy === "price-asc") {
-    products.sort((a, b) => a.price - b.price);
+    orderBy = { price: "asc" };
   } else if (filters.sortBy === "price-desc") {
-    products.sort((a, b) => b.price - a.price);
+    orderBy = { price: "desc" };
   } else if (filters.sortBy === "carat-desc") {
-    products.sort((a, b) => (b.caratWeight || 0) - (a.caratWeight || 0));
+    orderBy = { caratWeight: "desc" };
   }
+
+  const dbProducts = await prisma.product.findMany({
+    where,
+    include: {
+      shop: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          logoUrl: true,
+          status: true,
+        },
+      },
+    },
+    orderBy,
+  }).catch(() => []);
+
+  const products: any[] = dbProducts.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    caratWeight: p.caratWeight ? Number(p.caratWeight) : undefined,
+  }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -99,49 +117,52 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
             Jewelry Collection
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif font-normal text-stone-900">
-            Fine Jewelry & Gemstones
+            {filters.category && filters.category !== "All"
+              ? `${filters.category} Collection`
+              : "All Fine Jewelry"}
           </h1>
-          <p className="text-xs sm:text-sm text-stone-600 mt-2">
-            Explore 21K & 22K gold bridal sets, certified solitaire rings, handcrafted bangles, and jhumkas from verified jewelry houses.
+          <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl">
+            Explore certified solitaires, 21K and 22K bridal jewellery, and royal handcrafted designs from verified ateliers.
           </p>
         </div>
 
         <div className="w-full md:w-80">
-          <SearchBar initialQuery={filters.query || ""} placeholder="Search by gemstone, metal, or style..." />
+          <SearchBar placeholder="Filter current view..." />
         </div>
       </div>
 
-      {/* Main Layout: Filter Sidebar + Products Grid */}
+      {/* Main Layout: Sidebar Filters + Products Grid */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Sidebar */}
-        <Suspense fallback={<div className="w-full lg:w-72 h-96 bg-white rounded-2xl border border-[#ede5dc] animate-pulse" />}>
-          <FilterSidebar />
-        </Suspense>
+        <FilterSidebar />
 
-        {/* Catalog Results */}
-        <div className="flex-1 w-full space-y-4">
-          <div className="flex items-center justify-between text-xs text-stone-500 px-1">
+        <main className="flex-1 w-full space-y-6">
+          <div className="flex items-center justify-between text-xs text-stone-600 pb-2">
             <span>
-              Showing <strong className="text-stone-900">{products.length}</strong> jewelry pieces
+              Showing <strong className="text-stone-900">{products.length}</strong> fine creations
             </span>
+            {filters.category && filters.category !== "All" && (
+              <span className="text-[#826229] font-medium">Filtered by: {filters.category}</span>
+            )}
           </div>
 
-          {products.length > 0 ? (
+          {products.length === 0 ? (
+            <div className="p-16 rounded-3xl bg-white border border-[#ede5dc] text-center space-y-3">
+              <Sparkles className="w-8 h-8 text-[#9c7936] mx-auto" />
+              <h3 className="text-base font-serif font-medium text-stone-900">
+                No jewelry pieces found
+              </h3>
+              <p className="text-xs text-stone-500 max-w-md mx-auto">
+                No items match your active filters. Try broadening your criteria or search term.
+              </p>
+            </div>
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-20 rounded-3xl bg-white border border-[#ede5dc] p-8 space-y-3 shadow-2xs">
-              <Sparkles className="w-8 h-8 text-[#b48c48] mx-auto" />
-              <h3 className="text-base font-serif font-medium text-stone-900">No products match your filters</h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Try clearing some filters or searching for another keyword.
-              </p>
-            </div>
           )}
-        </div>
+        </main>
       </div>
     </div>
   );
@@ -149,14 +170,7 @@ async function JewelryCatalogContent({ searchParams }: PageProps) {
 
 export default function JewelryCatalogPage({ searchParams }: PageProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <div className="h-8 w-64 bg-stone-200 rounded-lg mx-auto animate-pulse mb-4" />
-          <div className="h-4 w-96 bg-stone-100 rounded mx-auto animate-pulse" />
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="p-12 text-center text-xs text-stone-500">Loading catalog...</div>}>
       <JewelryCatalogContent searchParams={searchParams} />
     </Suspense>
   );

@@ -1,19 +1,79 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getServerSession } from "@/lib/auth-server";
 
-// GET /api/products - Query real products from Neon DB
+// GET /api/products - Query real products from Neon DB with complete filtering
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const metalType = searchParams.get("metalType");
+    const gemstoneType = searchParams.get("gemstoneType");
     const shopId = searchParams.get("shopId");
-    const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const query = searchParams.get("query") || searchParams.get("search");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const minCarat = searchParams.get("minCarat");
+    const certifiedOnly = searchParams.get("certifiedOnly");
+    const sortBy = searchParams.get("sortBy") || "newest";
+    const limit = parseInt(searchParams.get("limit") || "100", 10);
+    const includeBanned = searchParams.get("includeBanned");
+    const bannedOnly = searchParams.get("bannedOnly");
 
     const where: any = {};
-    if (category) where.category = category;
-    if (metalType) where.metalType = metalType;
-    if (shopId) where.shopId = shopId;
+
+    if (bannedOnly === "true") {
+      where.isBanned = true;
+    } else if (includeBanned !== "true") {
+      where.isBanned = false;
+    }
+
+    if (category && category !== "All") {
+      where.category = { equals: category, mode: "insensitive" };
+    }
+    if (metalType && metalType !== "All") {
+      where.metalType = { contains: metalType, mode: "insensitive" };
+    }
+    if (gemstoneType && gemstoneType !== "All") {
+      where.gemstoneType = { equals: gemstoneType, mode: "insensitive" };
+    }
+    if (shopId) {
+      where.shopId = shopId;
+    }
+
+    if (query) {
+      where.OR = [
+        { title: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+        { metalType: { contains: query, mode: "insensitive" } },
+        { gemstoneType: { contains: query, mode: "insensitive" } },
+        { shop: { name: { contains: query, mode: "insensitive" } } },
+      ];
+    }
+
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    if (minCarat) {
+      where.caratWeight = { gte: parseFloat(minCarat) };
+    }
+
+    if (certifiedOnly === "true") {
+      where.certifiedBy = { not: null, notIn: ["None", ""] };
+    }
+
+    // Determine sorting
+    let orderBy: any = { createdAt: "desc" };
+    if (sortBy === "price-asc") {
+      orderBy = { price: "asc" };
+    } else if (sortBy === "price-desc") {
+      orderBy = { price: "desc" };
+    } else if (sortBy === "carat-desc") {
+      orderBy = { caratWeight: "desc" };
+    }
 
     const products = await prisma.product.findMany({
       where,
@@ -25,11 +85,12 @@ export async function GET(request: Request) {
             name: true,
             slug: true,
             logoUrl: true,
+            bannerUrl: true,
             status: true,
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     });
 
     return NextResponse.json({
@@ -46,11 +107,12 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/products - Ingest a new real jewelry product via Web API
+// POST /api/products - Ingest a new real jewelry product
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession();
     const body = await request.json();
-    const {
+    let {
       title,
       slug,
       description,
@@ -66,64 +128,98 @@ export async function POST(request: Request) {
       shopId,
     } = body;
 
-    if (!title || price === undefined || !category || !metalType || !shopId) {
+    if (!title || price === undefined || !category || !metalType) {
       return NextResponse.json(
         {
           success: false,
-          error: "Missing required fields: title, price, category, metalType, shopId",
+          error: "Missing required fields: title, price, category, metalType",
         },
         { status: 400 }
       );
     }
 
-    // Verify shop exists
-    const shop = await prisma.shop.findUnique({
-      where: { id: shopId },
-    });
+    // Resolve shopId
+    if (!shopId) {
+      if (session?.shopId) {
+        shopId = session.shopId;
+      } else if (session?.id) {
+        const userShop = await prisma.shop.findUnique({
+          where: { ownerId: session.id },
+        });
+        if (userShop) shopId = userShop.id;
+      }
+    }
 
-    if (!shop) {
+    if (!shopId) {
+      const firstShop = await prisma.shop.findFirst({
+        orderBy: { createdAt: "asc" },
+      });
+      if (firstShop) shopId = firstShop.id;
+    }
+
+    if (!shopId) {
       return NextResponse.json(
-        { success: false, error: "Associated boutique shop not found" },
-        { status: 404 }
+        {
+          success: false,
+          error: "No boutique shop exists yet. Please create a shop first before uploading jewelry pieces.",
+        },
+        { status: 400 }
       );
     }
 
     const generatedSlug =
-      slug ||
-      `${title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "")}-${Date.now().toString().slice(-4)}`;
+      slug?.trim() ||
+      `${title
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]+/g, "")}-${Date.now().toString().slice(-4)}`;
+
+    const normalizedImages = Array.isArray(images) && images.length > 0
+      ? images
+      : [
+          "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+        ];
 
     const product = await prisma.product.create({
       data: {
-        title,
+        title: title.trim(),
         slug: generatedSlug,
-        description: description || "",
+        description: description?.trim() || "",
         price: parseFloat(price.toString()),
         stock: parseInt(stock?.toString() || "1", 10),
-        images: Array.isArray(images) && images.length > 0 ? images : [
-          "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
-        ],
-        category,
-        metalType,
+        images: normalizedImages,
+        category: category.trim(),
+        metalType: metalType.trim(),
         metalPurity: metalPurity || null,
         gemstoneType: gemstoneType || null,
         caratWeight: caratWeight ? parseFloat(caratWeight.toString()) : null,
         certifiedBy: certifiedBy || null,
         shopId,
       },
+      include: {
+        shop: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(
       {
         success: true,
-        message: "Jewelry piece successfully ingested into catalog",
+        message: "Jewelry piece successfully hallmarked and published to boutique catalog!",
         data: product,
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to ingest product:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to ingest product" },
+      { success: false, error: error?.message || "Failed to create product" },
       { status: 500 }
     );
   }

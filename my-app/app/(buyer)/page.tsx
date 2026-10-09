@@ -1,16 +1,83 @@
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getServerSession } from "@/lib/auth-server";
+import prisma from "@/lib/prisma";
 import { SearchBar } from "@/components/marketplace/SearchBar";
 import { ProductCard } from "@/components/jewelry/ProductCard";
 import { ShopCard } from "@/components/marketplace/ShopCard";
-import { MOCK_PRODUCTS, MOCK_SHOPS } from "@/lib/mock-data";
 import { Sparkles, ArrowRight, Store, Award, ShieldCheck, Banknote, Truck } from "lucide-react";
 
-export default function MallLandingPage() {
-  const featuredProducts = MOCK_PRODUCTS.slice(0, 4);
-  const featuredShops = MOCK_SHOPS;
+export default async function MallLandingPage() {
+  // Query real data from Neon PostgreSQL
+  const [dbProducts, dbShops, dbCategories] = await Promise.all([
+    prisma.product.findMany({
+      take: 8,
+      where: {
+        isBanned: false,
+        shop: { status: "ACTIVE" },
+      },
+      include: {
+        shop: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }).catch(() => []),
+
+    prisma.shop.findMany({
+      take: 4,
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+    }).catch(() => []),
+
+    prisma.category.findMany({
+      take: 4,
+      orderBy: { createdAt: "asc" },
+    }).catch(() => []),
+  ]);
+
+  // Convert Decimal prices to numbers for ProductCard
+  const featuredProducts: any[] = dbProducts.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    caratWeight: p.caratWeight ? Number(p.caratWeight) : undefined,
+  }));
+
+  const featuredShops: any[] = dbShops;
+
+  const defaultCategoriesFallback = [
+    {
+      name: "Bridal Sets & Haars",
+      subtitle: "22K Gold Chokers, Haars & Pearls",
+      imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
+      slug: "necklaces",
+    },
+    {
+      name: "Solitaires & Rings",
+      subtitle: "Certified Diamonds & Gold Bands",
+      imageUrl: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80",
+      slug: "rings",
+    },
+    {
+      name: "Bangles & Kangan",
+      subtitle: "Solid 21K & 22K Gold Pairs & Cuffs",
+      imageUrl: "https://images.unsplash.com/photo-1611591475819-bf91696b96b2?auto=format&fit=crop&w=600&q=80",
+      slug: "bracelets",
+    },
+    {
+      name: "Jhumkas & Earrings",
+      subtitle: "Traditional Drops, Studs & Chandbalis",
+      imageUrl: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=600&q=80",
+      slug: "earrings",
+    },
+  ];
+
+  const displayCategories = dbCategories.length > 0 ? dbCategories : defaultCategoriesFallback;
 
   return (
     <div className="space-y-20 pb-20">
@@ -148,48 +215,25 @@ export default function MallLandingPage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {[
-            {
-              title: "Bridal Sets & Haars",
-              subtitle: "22K Gold Chokers, Haars & Pearls",
-              image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
-              href: "/jewelry?category=Necklaces",
-            },
-            {
-              title: "Solitaires & Rings",
-              subtitle: "Certified Diamonds & Gold Bands",
-              image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80",
-              href: "/jewelry?category=Rings",
-            },
-            {
-              title: "Bangles & Kangan",
-              subtitle: "Solid 21K & 22K Gold Pairs & Cuffs",
-              image: "https://images.unsplash.com/photo-1611591475819-bf91696b96b2?auto=format&fit=crop&w=600&q=80",
-              href: "/jewelry?category=Bracelets",
-            },
-            {
-              title: "Jhumkas & Earrings",
-              subtitle: "Traditional Drops, Studs & Chandbalis",
-              image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=600&q=80",
-              href: "/jewelry?category=Earrings",
-            },
-          ].map((cat) => (
+          {displayCategories.map((cat: any) => (
             <Link
-              key={cat.title}
-              href={cat.href}
+              key={cat.id || cat.name}
+              href={`/jewelry?category=${encodeURIComponent(cat.name)}`}
               className="group relative h-56 rounded-2xl overflow-hidden bg-white border border-[#ede5dc] hover:border-[#b48c48] shadow-2xs hover:shadow-md transition-all p-4 flex flex-col justify-end"
             >
               <img
-                src={cat.image}
-                alt={cat.title}
+                src={cat.imageUrl || "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80"}
+                alt={cat.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/25 to-transparent" />
               <div className="relative z-10">
                 <h3 className="text-sm font-serif font-medium text-white group-hover:text-[#ecd8b0] transition-colors">
-                  {cat.title}
+                  {cat.name}
                 </h3>
-                <p className="text-[11px] text-stone-200 mt-0.5">{cat.subtitle}</p>
+                <p className="text-[11px] text-stone-200 mt-0.5 line-clamp-1">
+                  {cat.description || cat.subtitle || "Fine jewelry creations"}
+                </p>
               </div>
             </Link>
           ))}
@@ -202,7 +246,7 @@ export default function MallLandingPage() {
           <div>
             <div className="flex items-center gap-2 text-[#9c7936] text-xs font-semibold uppercase tracking-wider mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              Featured Masterpieces
+              Live Marketplace Catalog
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-normal text-stone-900">
               Popular Jewelry Pieces
@@ -217,11 +261,29 @@ export default function MallLandingPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {featuredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-12 rounded-3xl bg-white border border-[#ede5dc] text-center space-y-3">
+            <Sparkles className="w-8 h-8 text-[#9c7936] mx-auto" />
+            <h3 className="text-base font-serif font-medium text-stone-900">Catalog is currently empty</h3>
+            <p className="text-xs text-stone-500 max-w-sm mx-auto">
+              All mock items were cleared. Log into your seller dashboard or open a boutique to upload your own fine jewelry creations!
+            </p>
+            <div className="pt-2 flex justify-center gap-3">
+              <Link href="/shops/new" className="gold-btn px-5 py-2 rounded-full text-xs font-medium">
+                Create Boutique
+              </Link>
+              <Link href="/dashboard/products/new" className="gold-outline-btn px-5 py-2 rounded-full text-xs font-medium">
+                Upload Product
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Featured Shops */}
@@ -245,11 +307,24 @@ export default function MallLandingPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredShops.map((shop) => (
-            <ShopCard key={shop.id} shop={shop} />
-          ))}
-        </div>
+        {featuredShops.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredShops.map((shop) => (
+              <ShopCard key={shop.id} shop={shop} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-12 rounded-3xl bg-white border border-[#ede5dc] text-center space-y-3">
+            <Store className="w-8 h-8 text-stone-400 mx-auto" />
+            <h3 className="text-base font-serif font-medium text-stone-900">No boutique shops yet</h3>
+            <p className="text-xs text-stone-500">
+              Establish the first atelier boutique on the Éternelle Gems marketplace.
+            </p>
+            <Link href="/shops/new" className="gold-btn px-5 py-2 rounded-full text-xs font-medium inline-block mt-2">
+              Open a Boutique Shop
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Multi-Vendor Marketplace Callout */}
@@ -269,7 +344,7 @@ export default function MallLandingPage() {
               <Link href="/jewelry" className="gold-btn px-6 py-2.5 rounded-full text-xs font-medium">
                 Browse Collection
               </Link>
-              <Link href="/register?role=VENDOR" className="gold-outline-btn px-6 py-2.5 rounded-full text-xs font-medium">
+              <Link href="/shops/new" className="gold-outline-btn px-6 py-2.5 rounded-full text-xs font-medium">
                 Open a Jewelry Shop
               </Link>
             </div>

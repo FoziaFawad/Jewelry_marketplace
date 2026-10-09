@@ -9,10 +9,21 @@ export async function GET() {
       return NextResponse.json({ authenticated: false, user: null }, { status: 200 });
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       authenticated: true,
       user: session,
     });
+
+    if (session.role) {
+      response.cookies.set("user_role", session.role, {
+        path: "/",
+        httpOnly: false,
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: "lax",
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Auth me error:", error);
     return NextResponse.json({ authenticated: false, user: null }, { status: 200 });

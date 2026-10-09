@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MOCK_PRODUCTS } from "@/lib/mock-data";
+import prisma from "@/lib/prisma";
 import { formatCurrency, formatCarat } from "@/lib/utils";
 import { MetalBadge } from "@/components/jewelry/MetalBadge";
 import { CaratSelector } from "@/components/jewelry/CaratSelector";
@@ -15,11 +15,8 @@ import {
   FileCheck2,
   Banknote,
   ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
-
-export function generateStaticParams() {
-  return MOCK_PRODUCTS.map((p) => ({ id: p.id }));
-}
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -27,13 +24,48 @@ interface PageProps {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.id === id);
 
-  if (!product) {
+  // Query real product from Neon DB
+  const rawProduct = await prisma.product.findFirst({
+    where: {
+      OR: [{ id }, { slug: id }],
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  if (!rawProduct) {
     notFound();
   }
 
-  const primaryImage = product.images[0];
+  if (rawProduct.isBanned) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl font-serif font-bold text-stone-900">Creation Unavailable</h1>
+        <p className="text-sm text-stone-600">
+          This fine jewelry piece is currently under administrative governance review or suspended from the marketplace catalog.
+        </p>
+        <div className="pt-4">
+          <Link href="/jewelry" className="gold-btn px-6 py-2.5 rounded-full text-xs font-semibold inline-flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Explore Available Creations
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const product = {
+    ...rawProduct,
+    price: Number(rawProduct.price),
+    caratWeight: rawProduct.caratWeight ? Number(rawProduct.caratWeight) : undefined,
+  };
+
+  const primaryImage = product.images[0] || "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80";
   const secondaryImage = product.images[1] || primaryImage;
 
   return (
@@ -58,94 +90,68 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <img
               src={primaryImage}
               alt={product.title}
-              className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover object-center"
             />
-            {product.certifiedBy && product.certifiedBy !== "None" && (
-              <div className="absolute top-4 left-4 z-10">
-                <Badge variant="emerald" className="text-xs px-3 py-1 shadow-xs bg-white/95">
-                  <FileCheck2 className="w-3.5 h-3.5 text-emerald-700" />
-                  {product.certifiedBy} Certified Report
-                </Badge>
-              </div>
-            )}
           </div>
 
-          {/* Thumbnail / Angle Preview */}
-          <div className="grid grid-cols-4 gap-3">
-            {[primaryImage, secondaryImage].map((img, i) => (
-              <div
-                key={i}
-                className="relative aspect-square rounded-2xl overflow-hidden border border-[#e8ded4] hover:border-[#b48c48] bg-white cursor-pointer shadow-2xs"
-              >
-                <img src={img} alt={`View angle ${i + 1}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
+          {product.images.length > 1 && (
+            <div className="grid grid-cols-4 gap-3">
+              {product.images.map((img, i) => (
+                <div
+                  key={i}
+                  className="aspect-square rounded-2xl overflow-hidden border border-[#ede5dc] bg-white shadow-2xs"
+                >
+                  <img src={img} alt={`${product.title} view ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Right: Specifications & Purchase Actions */}
+        {/* Right: Product Details & Specs */}
         <div className="space-y-6">
-          {/* Shop Header */}
+          {/* Shop Tag */}
           {product.shop && (
             <Link
               href={`/shops/${product.shop.slug}`}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#faf5ed] border border-[#ecd8b0] text-xs text-[#826229] hover:border-[#b48c48] transition-colors shadow-2xs"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#faf5ed] border border-[#ecd8b0] text-[#826229] text-xs font-medium hover:bg-[#f3e7d5] transition-colors"
             >
-              <Store className="w-3.5 h-3.5 text-[#9c7936]" />
-              <span>Created by {product.shop.name}</span>
+              <Store className="w-3.5 h-3.5" />
+              <span>{product.shop.name}</span>
             </Link>
           )}
 
-          {/* Title & Price */}
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-serif font-normal text-stone-900 tracking-tight leading-snug">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-serif text-stone-900 font-normal leading-tight">
               {product.title}
             </h1>
+            <p className="text-2xl font-serif font-semibold text-[#826229] mt-3">
+              {formatCurrency(product.price)}
+            </p>
+          </div>
 
-            <div className="flex items-baseline gap-3 pt-2">
-              <span className="text-3xl font-semibold gold-gradient-text tracking-tight">
-                {formatCurrency(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-sm text-stone-400 line-through">
-                  {formatCurrency(product.originalPrice)}
-                </span>
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+            {product.description}
+          </p>
+
+          {/* Jewelry Hallmarks */}
+          <div className="p-5 rounded-2xl bg-[#faf8f5] border border-[#ede5dc] space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#9c7936]">
+              Hallmark Specifications & Gemological Report
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <MetalBadge metalType={product.metalType} purity={product.metalPurity || undefined} />
+              {product.certifiedBy && (
+                <Badge variant="gold" className="text-xs">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                  {product.certifiedBy} Certified
+                </Badge>
               )}
             </div>
           </div>
 
-          {/* Hallmarks & Attributes */}
-          <div className="pt-2">
-            <MetalBadge
-              metalType={product.metalType}
-              purity={product.metalPurity}
-              certifiedBy={product.certifiedBy}
-            />
-          </div>
-
-          {/* Interactive Carat Selector */}
-          {product.caratWeight && (
-            <div className="p-4 rounded-2xl bg-white border border-[#ede5dc] shadow-2xs">
-              <CaratSelector currentCarat={product.caratWeight} />
-            </div>
-          )}
-
-          {/* Description */}
-          <div className="space-y-2 text-xs sm:text-sm text-stone-600 leading-relaxed pt-2 border-t border-[#ede5dc]">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-              Product Description
-            </h3>
-            <p>{product.description}</p>
-          </div>
-
-          {/* Specs Box */}
-          <div className="p-5 rounded-2xl bg-[#faf8f5] border border-[#ede5dc] grid grid-cols-2 gap-4 text-xs">
-            <div>
-              <span className="text-stone-500 block">Precious Metal</span>
-              <span className="font-semibold text-stone-900">
-                {product.metalPurity ? `${product.metalPurity} ${product.metalType}` : product.metalType}
-              </span>
-            </div>
+          {/* Key Specs Grid */}
+          <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-white border border-[#ede5dc] text-xs">
             <div>
               <span className="text-stone-500 block">Gemstone</span>
               <span className="font-semibold text-stone-900">
@@ -161,7 +167,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <div>
               <span className="text-stone-500 block">Certification</span>
               <span className="font-semibold text-emerald-800">
-                {product.certificateNumber ? `${product.certifiedBy} #${product.certificateNumber}` : "Certified Authentic"}
+                {product.certifiedBy || "Atelier Hallmarked"}
               </span>
             </div>
           </div>
@@ -195,7 +201,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-[#9c7936] shrink-0" />
-              <span>Insured TCS / Leopard Courier</span>
+              <span>Insured Courier</span>
             </div>
             <div className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4 text-[#9c7936] shrink-0" />

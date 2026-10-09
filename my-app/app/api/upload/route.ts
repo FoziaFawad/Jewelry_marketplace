@@ -1,33 +1,63 @@
 import { NextResponse } from "next/server";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { filename, uploadType } = body;
+    const contentType = request.headers.get("content-type") || "";
 
-    if (!filename) {
+    // 1. Multipart Form Data (Native file upload from browser)
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const file = formData.get("file") as File | null;
+      const folder = (formData.get("folder") as string) || "jewelry_marketplace";
+
+      if (!file) {
+        return NextResponse.json(
+          { success: false, error: "No image file provided in form data" },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      const result = await uploadImageToCloudinary(buffer, folder);
+
+      return NextResponse.json({
+        success: true,
+        url: result.secure_url,
+        publicUrl: result.secure_url,
+        publicId: result.public_id,
+      });
+    }
+
+    // 2. JSON Body (Base64 image or Image URL)
+    const body = await request.json();
+    const { image, url, folder = "jewelry_marketplace" } = body;
+
+    const target = image || url;
+    if (!target) {
       return NextResponse.json(
-        { success: false, error: "Filename is required" },
+        { success: false, error: "No image data or URL provided" },
         { status: 400 }
       );
     }
 
-    const mockStorageUrl =
-      uploadType === "gem_certificate"
-        ? `https://images.unsplash.com/photo-1605100804763-247f67b3557e?cert=${Date.now()}`
-        : `https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80`;
+    const result = await uploadImageToCloudinary(target, folder);
 
     return NextResponse.json({
       success: true,
-      uploadUrl: `https://upload.market.jewelry/presigned/${encodeURIComponent(filename)}`,
-      publicUrl: mockStorageUrl,
-      fields: {
-        key: `uploads/${uploadType || "general"}/${Date.now()}_${filename}`,
-      },
+      url: result.secure_url,
+      publicUrl: result.secure_url,
+      publicId: result.public_id,
     });
-  } catch {
+  } catch (error: any) {
+    console.error("Cloudinary upload failed:", error);
     return NextResponse.json(
-      { success: false, error: "Presigned URL generation failed" },
+      {
+        success: false,
+        error: error?.message || "Failed to upload image to cloud storage",
+      },
       { status: 500 }
     );
   }
