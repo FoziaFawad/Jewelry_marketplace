@@ -35,10 +35,13 @@ export default async function MallLandingPage() {
       orderBy: { createdAt: "desc" },
     }).catch(() => []),
 
-    prisma.category.findMany({
-      take: 4,
-      orderBy: { createdAt: "asc" },
-    }).catch(() => []),
+    (prisma.category
+      ? prisma.category.findMany({
+          take: 4,
+          orderBy: { createdAt: "asc" },
+        })
+      : Promise.resolve([])
+    ).catch(() => []),
   ]);
 
   // Convert Decimal prices to numbers for ProductCard
@@ -77,7 +80,7 @@ export default async function MallLandingPage() {
     },
   ];
 
-  const displayCategories = dbCategories.length > 0 ? dbCategories : defaultCategoriesFallback;
+  const displayCategories = (dbCategories && dbCategories.length > 0) ? dbCategories : defaultCategoriesFallback;
 
   return (
     <div className="space-y-20 pb-20">
