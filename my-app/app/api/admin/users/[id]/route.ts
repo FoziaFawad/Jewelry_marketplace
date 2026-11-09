@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth-server";
 import { Role } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 // PUT /api/admin/users/[id] - Update user role, ban status, or details
 export async function PUT(
   request: Request,

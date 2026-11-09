@@ -5,6 +5,8 @@ import { ProductCard } from "@/components/jewelry/ProductCard";
 import { SearchBar } from "@/components/marketplace/SearchBar";
 import { Sparkles, Gem } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   searchParams: Promise<{
     category?: string;

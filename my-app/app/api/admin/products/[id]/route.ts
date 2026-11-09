@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth-server";
 
+export const dynamic = 'force-dynamic';
+
 // PUT /api/admin/products/[id] - Edit any shop product from any seller
 export async function PUT(
   request: Request,

@@ -6,6 +6,8 @@ import { ProductCard } from "@/components/jewelry/ProductCard";
 import { ShopCard } from "@/components/marketplace/ShopCard";
 import { Sparkles, ArrowRight, Store, Award, ShieldCheck, Banknote, Truck } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function MallLandingPage() {
   // Query real data from Neon PostgreSQL
   const [dbProducts, dbShops, dbCategories] = await Promise.all([

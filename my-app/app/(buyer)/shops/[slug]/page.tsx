@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "@/lib/auth-server";
 import { ShieldCheck, Star, MapPin, Sparkles, MessageCircle, Info, Store, ArrowRight, Settings } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ShopStorefrontPage({
   params,
 }: {

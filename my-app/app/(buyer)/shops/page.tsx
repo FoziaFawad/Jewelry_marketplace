@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { ShopCard } from "@/components/marketplace/ShopCard";
 import { Store, PlusCircle } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ShopsDirectoryPage() {
   const dbShops = await prisma.shop.findMany({
     include: {

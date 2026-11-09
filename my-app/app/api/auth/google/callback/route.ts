@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { createSessionToken } from "@/lib/auth-server";
 import { Role } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");

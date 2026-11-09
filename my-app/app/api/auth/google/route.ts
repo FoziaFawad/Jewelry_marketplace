@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { createSessionToken } from "@/lib/auth-server";
 import { Role } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET: Initiates official Google OAuth 2.0 flow
  */

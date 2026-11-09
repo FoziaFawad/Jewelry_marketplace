@@ -4,6 +4,8 @@ import { hashPassword, createSessionToken } from "@/lib/auth-server";
 import { verifyCode } from "@/lib/verification";
 import { Role } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

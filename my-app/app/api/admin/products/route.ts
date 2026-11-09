@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth-server";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/products - List all products across all seller accounts
 export async function GET(request: Request) {
   try {

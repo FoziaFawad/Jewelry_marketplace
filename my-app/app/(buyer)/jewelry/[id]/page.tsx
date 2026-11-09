@@ -18,6 +18,8 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

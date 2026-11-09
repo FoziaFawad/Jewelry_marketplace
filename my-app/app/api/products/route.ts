@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth-server";
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/products - Query real products from Neon DB with complete filtering
 export async function GET(request: Request) {
   try {
